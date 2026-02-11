@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Ledger</title>
+    <link rel="stylesheet" href="/app/script/style.css?v=1770791247">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Ledger</h1>
+            </div>
+            <nav class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="data">Data</button>
+                <button class="tab-btn" data-tab="summary">Summary</button>
+            </nav>
+            <div class="tab-content" id="tab-data">
+                <p class="sidebar-hint">Use the filter bar to browse your accounts.</p>
+            </div>
+            <div class="tab-content hidden" id="tab-summary">
+                <p class="sidebar-hint">Summary coming soon.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Account Bar (always visible) -->
+            <div class="account-bar">
+                <div class="account-bar-left">
+                    <div class="multi-select" id="filter-account">
+                        <label class="checkbox-label"><input type="checkbox" value="chase.csv"
+                                checked><span>Chase</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="cash.csv"
+                                checked><span>Cash</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="toss.csv"
+                                checked><span>Toss</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="travellog.csv"
+                                checked><span>Travellog</span></label>
+                    </div>
+                </div>
+                <button id="filter-toggle-btn" class="btn secondary btn-sm filter-toggle">&#9662; Filters</button>
+                <button id="delete-selected-btn" class="btn btn-sm delete-btn hidden">🗑 Delete Selected (<span
+                        id="delete-count">0</span>)</button>
+            </div>
+
+            <!-- Collapsible Filter Panel (default: closed) -->
+            <div class="filter-panel hidden" id="filter-panel">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Description</label>
+                        <input type="text" id="filter-description" placeholder="Search...">
+                    </div>
+                    <div class="filter-group filter-range">
+                        <label>Amount</label>
+                        <div class="range-inputs">
+                            <input type="number" id="filter-amount-min" placeholder="Min">
+                            <span class="range-sep">–</span>
+                            <input type="number" id="filter-amount-max" placeholder="Max">
+                        </div>
+                    </div>
+                    <div class="filter-group filter-range">
+                        <label>Date Range</label>
+                        <div class="range-inputs">
+                            <input type="date" id="filter-date-start">
+                            <span class="range-sep">–</span>
+                            <input type="date" id="filter-date-end">
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group filter-category-group">
+                    <div class="category-header">
+                        <label>Category</label>
+                        <div class="category-toggle-btns">
+                            <button id="cat-select-all" class="btn btn-sm btn-ghost">Select All</button>
+                            <button id="cat-deselect-all" class="btn btn-sm btn-ghost">Deselect All</button>
+                        </div>
+                    </div>
+                    <div class="multi-select category-select" id="filter-category">
+                        <div class="category-group-label">Expense</div>
+                        <label class="checkbox-label"><input type="checkbox" value="Groceries"
+                                checked><span>Groceries</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Food"
+                                checked><span>Food</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Restaurant Week"
+                                checked><span>Restaurant Week</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="NBA"
+                                checked><span>NBA</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Broadway"
+                                checked><span>Broadway</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Transportation"
+                                checked><span>Transportation</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Medical"
+                                checked><span>Medical</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Home"
+                                checked><span>Home</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Etc"
+                                checked><span>Etc</span></label>
+                        <div class="category-group-label">Income</div>
+                        <label class="checkbox-label"><input type="checkbox" value="Allowance"
+                                checked><span>Allowance</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Gift"
+                                checked><span>Gift</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Boucher"
+                                checked><span>Boucher</span></label>
+                        <label class="checkbox-label"><input type="checkbox" value="Refund"
+                                checked><span>Refund</span></label>
+                    </div>
+                </div>
+                <div class="filter-panel-footer">
+                    <div class="filter-group filter-actions">
+                        <button id="filter-apply-btn" class="btn primary btn-sm">Apply</button>
+                        <button id="filter-reset-btn" class="btn secondary btn-sm">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Table Area -->
+            <div class="content-area">
+                <div class="table-container">
+                    <table id="data-table">
+                        <thead>
+                            <tr id="table-header">
+                                <!-- Headers injected here -->
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows injected here -->
+                        </tbody>
+                        <tfoot>
+                            <tr id="balance-row" class="balance-row">
+                                <!-- Balance injected here -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div id="empty-state" class="empty-state hidden">
+                        <p>No data to display</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Bar (sticky bottom) -->
+            <div class="input-bar">
+                <div class="input-bar-row">
+                    <div class="input-group toggle-group">
+                        <button id="toggle-type" class="toggle-btn expense"
+                            title="Toggle Income/Expense">Expense</button>
+                    </div>
+                    <div class="input-group toggle-group">
+                        <select id="input-account" title="Account (CSV)">
+                            <option value="chase.csv" selected>Chase</option>
+                            <option value="cash.csv">Cash</option>
+                            <option value="toss.csv">Toss</option>
+                            <option value="travellog.csv">Travellog</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <input type="date" id="input-date" title="Date">
+                    </div>
+                    <div class="input-group grow">
+                        <input type="text" id="input-description" placeholder="Description" title="Description">
+                    </div>
+                    <div class="input-group" style="position:relative;">
+                        <input type="text" id="input-category" placeholder="Category" autocomplete="off"
+                            title="Category">
+                        <div id="category-autocomplete" class="autocomplete-dropdown hidden"></div>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="input-amount" placeholder="Amount" step="0.01" title="Amount">
+                    </div>
+                    <div class="input-group">
+                        <button id="submit-row" class="btn primary" title="Add Row (Enter)">Add</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/app/script/app.js?v=1770791247"></script>
+</body>
+
+</html>
