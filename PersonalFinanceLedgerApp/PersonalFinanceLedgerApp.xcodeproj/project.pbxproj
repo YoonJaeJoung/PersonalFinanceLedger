@@ -1,0 +1,326 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B0000001 /* PersonalFinanceLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000001; };
+		B0000002 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000002; };
+		B0000003 /* CSVImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000003; };
+		B0000004 /* CategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000004; };
+		B0000005 /* LedgerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000005; };
+		B0000006 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000006; };
+		B0000007 /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000007; };
+		B0000008 /* CategoryBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000008; };
+		B0000009 /* FilterPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000009; };
+		B000000A /* InputBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000A; };
+		B000000B /* EditTransactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000B; };
+		B000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A000000C; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A0000001 /* PersonalFinanceLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalFinanceLedgerApp.swift; sourceTree = "<group>"; };
+		A0000002 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		A0000003 /* CSVImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImporter.swift; sourceTree = "<group>"; };
+		A0000004 /* CategoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryInfo.swift; sourceTree = "<group>"; };
+		A0000005 /* LedgerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerViewModel.swift; sourceTree = "<group>"; };
+		A0000006 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A0000007 /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListView.swift; sourceTree = "<group>"; };
+		A0000008 /* CategoryBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryBadge.swift; sourceTree = "<group>"; };
+		A0000009 /* FilterPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPanelView.swift; sourceTree = "<group>"; };
+		A000000A /* InputBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarView.swift; sourceTree = "<group>"; };
+		A000000B /* EditTransactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransactionSheet.swift; sourceTree = "<group>"; };
+		A000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A000000D /* PersonalFinanceLedgerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PersonalFinanceLedgerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D0000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C0000001 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				C0000002 /* PersonalFinanceLedgerApp */,
+				C0000006 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C0000002 /* PersonalFinanceLedgerApp */ = {
+			isa = PBXGroup;
+			children = (
+				A0000001 /* PersonalFinanceLedgerApp.swift */,
+				C0000003 /* Models */,
+				C0000004 /* ViewModels */,
+				C0000005 /* Views */,
+				A000000C /* Assets.xcassets */,
+			);
+			path = PersonalFinanceLedgerApp;
+			sourceTree = "<group>";
+		};
+		C0000003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A0000002 /* Transaction.swift */,
+				A0000003 /* CSVImporter.swift */,
+				A0000004 /* CategoryInfo.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C0000004 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A0000005 /* LedgerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C0000005 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A0000006 /* ContentView.swift */,
+				A0000007 /* TransactionListView.swift */,
+				A0000008 /* CategoryBadge.swift */,
+				A0000009 /* FilterPanelView.swift */,
+				A000000A /* InputBarView.swift */,
+				A000000B /* EditTransactionSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C0000006 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A000000D /* PersonalFinanceLedgerApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E0000001 /* PersonalFinanceLedgerApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = G0000002 /* Build configuration list for PBXNativeTarget "PersonalFinanceLedgerApp" */;
+			buildPhases = (
+				D0000001 /* Sources */,
+				D0000002 /* Resources */,
+				D0000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PersonalFinanceLedgerApp;
+			productName = PersonalFinanceLedgerApp;
+			productReference = A000000D /* PersonalFinanceLedgerApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F0000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					E0000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C0000001 /* Main */;
+			productRefGroup = C0000006 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E0000001 /* PersonalFinanceLedgerApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D0000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B000000C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D0000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0000001 /* PersonalFinanceLedgerApp.swift in Sources */,
+				B0000002 /* Transaction.swift in Sources */,
+				B0000003 /* CSVImporter.swift in Sources */,
+				B0000004 /* CategoryInfo.swift in Sources */,
+				B0000005 /* LedgerViewModel.swift in Sources */,
+				B0000006 /* ContentView.swift in Sources */,
+				B0000007 /* TransactionListView.swift in Sources */,
+				B0000008 /* CategoryBadge.swift in Sources */,
+				B0000009 /* FilterPanelView.swift in Sources */,
+				B000000A /* InputBarView.swift in Sources */,
+				B000000B /* EditTransactionSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		H0000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		H0000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		H0000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personalfinance.ledger;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		H0000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personalfinance.ledger;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				H0000001 /* Debug */,
+				H0000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		G0000002 /* Build configuration list for PBXNativeTarget "PersonalFinanceLedgerApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				H0000003 /* Debug */,
+				H0000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F0000001 /* Project object */;
+}
