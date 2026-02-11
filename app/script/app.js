@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const emptyStateEl = document.getElementById('empty-state');
   const deleteSelectedBtn = document.getElementById('delete-selected-btn');
   const deleteCountEl = document.getElementById('delete-count');
+  const changeAccountGroup = document.getElementById('change-account-group');
+  const changeAccountSelect = document.getElementById('change-account-select');
+  const changeAccountBtn = document.getElementById('change-account-btn');
 
   // Account bar
   const filterAccountEl = document.getElementById('filter-account');
@@ -85,13 +88,17 @@ document.addEventListener('DOMContentLoaded', () => {
     merged.sort((a, b) => (a.Date || '').localeCompare(b.Date || ''));
     return merged;
   }
-  function getHeaders() { return ['Date', 'Description', 'Category', 'Amount']; }
+  function getHeaders() { return ['Date', 'Category', 'Description', 'Account', 'Amount']; }
+  function accountDisplayName(filename) {
+    return filename.replace('.csv', '').replace(/^\w/, c => c.toUpperCase());
+  }
 
   function updateDeleteBtn() {
     const checked = tableBodyEl.querySelectorAll('.row-select:checked');
     const count = checked.length;
     deleteCountEl.textContent = count;
     deleteSelectedBtn.classList.toggle('hidden', count === 0);
+    changeAccountGroup.classList.toggle('hidden', count === 0);
   }
 
   // --- Filter Panel Toggle ---
@@ -231,6 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
     headers.forEach(h => {
       const th = document.createElement('th');
       th.textContent = h;
+      if (h === 'Date') th.className = 'col-date';
+      else if (h === 'Category') th.className = 'col-category';
+      else if (h === 'Account') th.className = 'col-account';
+      else if (h === 'Amount') th.className = 'col-amount';
       tableHeaderEl.appendChild(th);
     });
 
@@ -262,14 +273,24 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.appendChild(tdSelect);
         headers.forEach(h => {
           const td = document.createElement('td');
-          const val = row[h] || '';
-          if (h === 'Amount') {
+          if (h === 'Date') td.className = 'col-date';
+          else if (h === 'Category') td.className = 'col-category';
+          else if (h === 'Account') td.className = 'col-account';
+          else if (h === 'Amount') td.className = 'col-amount';
+          if (h === 'Account') {
+            const badge = document.createElement('span');
+            badge.className = 'account-badge';
+            badge.textContent = accountDisplayName(row.__account);
+            td.appendChild(badge);
+          } else if (h === 'Amount') {
+            const val = row[h] || '';
             const num = parseFloat(val);
             if (!isNaN(num)) {
               td.textContent = '$' + Math.abs(num).toFixed(2);
               td.classList.add(num >= 0 ? 'amount-positive' : 'amount-negative');
             } else { td.textContent = val; }
           } else if (h === 'Category') {
+            const val = row[h] || '';
             const color = getCategoryColor(val);
             const badge = document.createElement('span');
             badge.className = 'category-badge';
@@ -279,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.style.border = `1px solid ${color.border}`;
             td.appendChild(badge);
           } else {
-            td.textContent = val;
+            td.textContent = row[h] || '';
           }
           tr.appendChild(td);
         });
@@ -351,6 +372,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     headers.forEach(h => {
       const td = document.createElement('td');
+      if (h === 'Account') {
+        // Account dropdown
+        const select = document.createElement('select');
+        select.className = 'edit-input';
+        ACCOUNT_FILES.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f;
+          opt.textContent = accountDisplayName(f);
+          if (f === row.__account) opt.selected = true;
+          select.appendChild(opt);
+        });
+        select.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
+          if (e.key === 'Enter') { e.preventDefault(); saveEditRow(tr, originalValues, row.__account); }
+        });
+        td.appendChild(select);
+        tr.appendChild(td);
+        return;
+      }
       const input = document.createElement('input');
       input.className = 'edit-input';
       if (h === 'Date') {
@@ -377,7 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const updateEditAutocomplete = () => {
           const val = input.value.toLowerCase().trim();
-          // Determine if expense or income based on original amount sign
           const origAmt = parseFloat(originalValues.Amount);
           const cats = (!isNaN(origAmt) && origAmt >= 0) ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
           const matches = val ? cats.filter(c => c.toLowerCase().startsWith(val)) : [];
@@ -435,14 +474,14 @@ document.addEventListener('DOMContentLoaded', () => {
               return;
             }
             e.preventDefault();
-            saveEditRow(tr, originalValues);
+            saveEditRow(tr, originalValues, row.__account);
           }
         });
         td.appendChild(editAutocompleteDropdown);
       } else {
         // Non-category Enter handler
         input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); saveEditRow(tr, originalValues); }
+          if (e.key === 'Enter') { e.preventDefault(); saveEditRow(tr, originalValues, row.__account); }
         });
       }
       td.appendChild(input);
@@ -473,35 +512,63 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilteredTable();
   }
 
-  async function saveEditRow(tr, originalValues) {
+  async function saveEditRow(tr, originalValues, originalAccount) {
     const headers = getHeaders();
     const inputs = tr.querySelectorAll('.edit-input');
     const newRow = {};
+    let newAccount = originalAccount;
     headers.forEach((h, i) => {
       let val = inputs[i].value.trim();
       if (h === 'Amount') {
         let num = parseFloat(val);
         if (isNaN(num)) num = 0;
-        // Preserve original sign
         const origNum = parseFloat(originalValues.Amount);
         if (!isNaN(origNum) && origNum < 0) num = -Math.abs(num);
         else num = Math.abs(num);
         val = num.toFixed(2);
+      } else if (h === 'Account') {
+        newAccount = val;
+        return; // Don't include Account in the CSV row data
       }
       newRow[h] = val;
     });
     const account = tr.dataset.account;
     const rowIndex = parseInt(tr.dataset.rowIndex, 10);
     try {
-      const res = await fetch('/api/data/' + encodeURIComponent(account) + '/update_row', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ row_index: rowIndex, row: newRow })
-      });
-      if (res.ok) {
-        allData[account] = await res.json();
-        editingRow = null;
-        renderFilteredTable();
+      if (newAccount !== account) {
+        // First update the row data in the source, then move it
+        const updateRes = await fetch('/api/data/' + encodeURIComponent(account) + '/update_row', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ row_index: rowIndex, row: newRow })
+        });
+        if (updateRes.ok) {
+          allData[account] = await updateRes.json();
+        }
+        // Now move the row
+        const moveRes = await fetch('/api/data/' + encodeURIComponent(account) + '/move_rows', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_account: newAccount, row_indices: [rowIndex] })
+        });
+        if (moveRes.ok) {
+          const result = await moveRes.json();
+          allData[account] = result.source;
+          allData[newAccount] = result.target;
+          editingRow = null;
+          renderFilteredTable();
+        }
+      } else {
+        const res = await fetch('/api/data/' + encodeURIComponent(account) + '/update_row', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ row_index: rowIndex, row: newRow })
+        });
+        if (res.ok) {
+          allData[account] = await res.json();
+          editingRow = null;
+          renderFilteredTable();
+        }
       }
     } catch (err) { console.error('Error updating row:', err); }
   }
@@ -536,6 +603,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   deleteSelectedBtn.addEventListener('click', deleteSelectedRows);
+
+  // --- Change Account for Selected Rows ---
+  async function changeSelectedAccount() {
+    const checked = tableBodyEl.querySelectorAll('.row-select:checked');
+    if (checked.length === 0) return;
+    const targetAccount = changeAccountSelect.value;
+    if (!confirm(`Move ${checked.length} selected row(s) to ${accountDisplayName(targetAccount)}?`)) return;
+    // Group by source account
+    const grouped = {};
+    checked.forEach(cb => {
+      const tr = cb.closest('tr');
+      const account = tr.dataset.account;
+      const rowIndex = parseInt(tr.dataset.rowIndex, 10);
+      if (account === targetAccount) return; // skip if already in target
+      if (!grouped[account]) grouped[account] = [];
+      grouped[account].push(rowIndex);
+    });
+    try {
+      for (const [sourceAccount, indices] of Object.entries(grouped)) {
+        const res = await fetch('/api/data/' + encodeURIComponent(sourceAccount) + '/move_rows', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_account: targetAccount, row_indices: indices })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          allData[sourceAccount] = result.source;
+          allData[targetAccount] = result.target;
+        }
+      }
+      renderFilteredTable();
+    } catch (err) { console.error('Error moving rows:', err); }
+  }
+
+  changeAccountBtn.addEventListener('click', changeSelectedAccount);
 
   // --- Filter Apply / Reset ---
   filterApplyBtn.addEventListener('click', () => { renderFilteredTable(); });

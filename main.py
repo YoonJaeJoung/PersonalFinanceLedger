@@ -231,6 +231,91 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, "Invalid URL format")
             return
 
+        # API to move rows to another account
+        elif '/move_rows' in self.path:
+            parts = self.path.split('/')
+            if len(parts) >= 4:
+                source_filename = urllib.parse.unquote(parts[3])
+                source_filepath = os.path.join(DIRECTORY, 'data', source_filename)
+
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                try:
+                    data = json.loads(post_data.decode('utf-8'))
+                    target_account = data.get('target_account')
+                    row_indices = data.get('row_indices', [])
+
+                    if not target_account or not row_indices:
+                        self.send_error(400, "Missing 'target_account' or 'row_indices' field")
+                        return
+
+                    target_filepath = os.path.join(DIRECTORY, 'data', target_account)
+
+                    if not os.path.exists(source_filepath):
+                        self.send_error(404, "Source file not found")
+                        return
+                    if not os.path.exists(target_filepath):
+                        self.send_error(404, "Target file not found")
+                        return
+
+                    # Read source
+                    with open(source_filepath, 'r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        source_rows = list(reader)
+                        source_headers = reader.fieldnames if reader.fieldnames else []
+
+                    # Read target
+                    with open(target_filepath, 'r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        target_rows = list(reader)
+                        target_headers = reader.fieldnames if reader.fieldnames else []
+
+                    # Extract rows to move
+                    rows_to_move = []
+                    for idx in sorted(row_indices):
+                        if 0 <= idx < len(source_rows):
+                            rows_to_move.append(source_rows[idx])
+
+                    # Remove from source (reverse order to preserve indices)
+                    for idx in sorted(row_indices, reverse=True):
+                        if 0 <= idx < len(source_rows):
+                            source_rows.pop(idx)
+
+                    # Append to target
+                    for row in rows_to_move:
+                        new_row = {}
+                        for h in target_headers:
+                            new_row[h] = row.get(h, '')
+                        target_rows.append(new_row)
+
+                    # Write source back
+                    with open(source_filepath, 'w', encoding='utf-8', newline='') as f:
+                        writer = csv.DictWriter(f, fieldnames=source_headers)
+                        writer.writeheader()
+                        writer.writerows(source_rows)
+
+                    # Write target back
+                    with open(target_filepath, 'w', encoding='utf-8', newline='') as f:
+                        writer = csv.DictWriter(f, fieldnames=target_headers)
+                        writer.writeheader()
+                        writer.writerows(target_rows)
+
+                    response = {
+                        'source': { 'headers': source_headers, 'rows': source_rows },
+                        'target': { 'headers': target_headers, 'rows': target_rows }
+                    }
+
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps(response).encode())
+
+                except Exception as e:
+                    self.send_error(500, str(e))
+            else:
+                self.send_error(400, "Invalid URL format")
+            return
+
         self.send_error(404, "Not found")
 
 print(f"Serving at port {PORT}")

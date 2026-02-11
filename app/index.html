@@ -47,6 +47,15 @@
                 <button id="filter-toggle-btn" class="btn secondary btn-sm filter-toggle">&#9662; Filters</button>
                 <button id="delete-selected-btn" class="btn btn-sm delete-btn hidden">🗑 Delete Selected (<span
                         id="delete-count">0</span>)</button>
+                <div id="change-account-group" class="change-account-group hidden">
+                    <select id="change-account-select" class="change-account-select">
+                        <option value="chase.csv">Chase</option>
+                        <option value="cash.csv">Cash</option>
+                        <option value="toss.csv">Toss</option>
+                        <option value="travellog.csv">Travellog</option>
+                    </select>
+                    <button id="change-account-btn" class="btn btn-sm change-account-btn">📂 Move to Account</button>
+                </div>
             </div>
 
             <!-- Collapsible Filter Panel (default: closed) -->
