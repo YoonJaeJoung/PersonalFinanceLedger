@@ -1,0 +1,4 @@
+.DS_Store
+csvConvert/raw/
+csvConvert/converted/
+data/backup/

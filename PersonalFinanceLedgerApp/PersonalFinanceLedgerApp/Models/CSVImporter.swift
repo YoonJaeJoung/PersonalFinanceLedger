@@ -44,7 +44,19 @@ struct CSVImporter {
         return count
     }
 
-    /// Import all known CSV files from a directory.
+    /// Import all known CSV files from a directory using dynamic account items.
+    static func importAllCSVs(from directoryURL: URL, accountItems: [AccountItem], context: ModelContext) throws -> Int {
+        var total = 0
+        for acct in accountItems where !acct.csvFileName.isEmpty {
+            let fileURL = directoryURL.appendingPathComponent(acct.csvFileName)
+            guard FileManager.default.fileExists(atPath: fileURL.path) else { continue }
+            let count = try importCSV(from: fileURL, account: acct.name, context: context)
+            total += count
+        }
+        return total
+    }
+
+    /// Legacy: Import using static account file mapping.
     static func importAllCSVs(from directoryURL: URL, context: ModelContext) throws -> Int {
         var total = 0
         for (account, filename) in CategoryInfo.accountFileMapping {

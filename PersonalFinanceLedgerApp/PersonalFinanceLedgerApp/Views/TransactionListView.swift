@@ -5,6 +5,8 @@ struct TransactionListView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var viewModel: LedgerViewModel
     let allTransactions: [Transaction]
+    let categoryItems: [CategoryItem]
+    let accountItems: [AccountItem]
 
     private var filtered: [Transaction] {
         viewModel.filteredTransactions(from: allTransactions)
@@ -25,7 +27,7 @@ struct TransactionListView: View {
 
             // Filter panel (collapsible)
             if viewModel.isFilterPanelOpen {
-                FilterPanelView(viewModel: viewModel)
+                FilterPanelView(viewModel: viewModel, categoryItems: categoryItems)
                 Divider()
             }
 
@@ -43,17 +45,29 @@ struct TransactionListView: View {
                     TableColumn("Date") { t in
                         Text(t.date.formatted(date: .abbreviated, time: .omitted))
                             .font(.callout)
+                            .contentShape(Rectangle())
+                            .onTapGesture(count: 2) {
+                                viewModel.editingTransaction = t
+                            }
                     }
                     .width(min: 80, ideal: 100)
 
                     TableColumn("Category") { t in
-                        CategoryBadge(category: t.category)
+                        CategoryBadge(category: t.category, categoryItems: categoryItems)
+                            .contentShape(Rectangle())
+                            .onTapGesture(count: 2) {
+                                viewModel.editingTransaction = t
+                            }
                     }
                     .width(min: 90, ideal: 120)
 
                     TableColumn("Description") { t in
                         Text(t.descriptionText)
                             .font(.callout)
+                            .contentShape(Rectangle())
+                            .onTapGesture(count: 2) {
+                                viewModel.editingTransaction = t
+                            }
                     }
 
                     TableColumn("Account") { t in
@@ -63,6 +77,10 @@ struct TransactionListView: View {
                             .padding(.vertical, 2)
                             .background(.quaternary)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .contentShape(Rectangle())
+                            .onTapGesture(count: 2) {
+                                viewModel.editingTransaction = t
+                            }
                     }
                     .width(min: 60, ideal: 90)
 
@@ -72,6 +90,10 @@ struct TransactionListView: View {
                             .fontWeight(.medium)
                             .foregroundStyle(t.amount >= 0 ? .green : .red)
                             .frame(maxWidth: .infinity, alignment: .trailing)
+                            .contentShape(Rectangle())
+                            .onTapGesture(count: 2) {
+                                viewModel.editingTransaction = t
+                            }
                     }
                     .width(min: 70, ideal: 100)
                 } rows: {
@@ -84,7 +106,11 @@ struct TransactionListView: View {
                                 Divider()
                                 Button("Delete", role: .destructive) {
                                     modelContext.delete(transaction)
-                                    try? modelContext.save()
+                                    do {
+                                        try modelContext.save()
+                                    } catch {
+                                        print("⚠️ Failed to save after deleting transaction: \(error)")
+                                    }
                                 }
                             }
                     }
@@ -109,10 +135,10 @@ struct TransactionListView: View {
             Divider()
 
             // Input bar
-            InputBarView(viewModel: viewModel)
+            InputBarView(viewModel: viewModel, categoryItems: categoryItems)
         }
         .sheet(item: $viewModel.editingTransaction) { transaction in
-            EditTransactionSheet(transaction: transaction)
+            EditTransactionSheet(transaction: transaction, categoryItems: categoryItems, viewModel: viewModel)
         }
     }
 
@@ -138,7 +164,7 @@ struct TransactionListView: View {
             if selectedCount > 0 {
                 // Move to account
                 Picker("Move to", selection: $viewModel.moveTargetAccount) {
-                    ForEach(CategoryInfo.accounts, id: \.self) { acc in
+                    ForEach(viewModel.dynamicAccounts, id: \.self) { acc in
                         Text(acc).tag(acc)
                     }
                 }

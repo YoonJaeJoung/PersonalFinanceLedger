@@ -23,6 +23,59 @@ class LedgerViewModel {
     var filterDateEnd: Date? = nil
     var selectedCategories: Set<String> = Set(CategoryInfo.allCategories)
 
+    // Formatter and string proxies for live-updating date filters
+    private static let filterDateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.calendar = Calendar(identifier: .gregorian)
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = .current
+        df.dateFormat = "yyyy-MM-dd"
+        return df
+    }()
+
+    // Text proxies to allow immediate filtering as user types dates
+    var filterDateStartText: String {
+        get {
+            if let d = filterDateStart {
+                return Self.filterDateFormatter.string(from: d)
+            }
+            return ""
+        }
+        set {
+            let trimmed = newValue.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty {
+                filterDateStart = nil
+                return
+            }
+            if let parsed = Self.filterDateFormatter.date(from: trimmed) {
+                // Normalize to the start of day
+                filterDateStart = Calendar.current.startOfDay(for: parsed)
+            }
+            // If parsing fails, leave the previous date in place until the input becomes valid
+        }
+    }
+
+    var filterDateEndText: String {
+        get {
+            if let d = filterDateEnd {
+                return Self.filterDateFormatter.string(from: d)
+            }
+            return ""
+        }
+        set {
+            let trimmed = newValue.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty {
+                filterDateEnd = nil
+                return
+            }
+            if let parsed = Self.filterDateFormatter.date(from: trimmed) {
+                // Normalize to the start of day (end is treated as exclusive at start of next day in filtering)
+                filterDateEnd = Calendar.current.startOfDay(for: parsed)
+            }
+            // If parsing fails, leave the previous date in place until the input becomes valid
+        }
+    }
+
     // Table selection
     var selectedTransactionIDs = Set<PersistentIdentifier>()
 
@@ -45,12 +98,74 @@ class LedgerViewModel {
     // Move account
     var moveTargetAccount = "Chase"
 
+    // Dynamic category/account data (populated from SwiftData)
+    var dynamicExpenseCategories: [String] = CategoryInfo.expenseCategories
+    var dynamicIncomeCategories: [String] = CategoryInfo.incomeCategories
+    var dynamicAllCategories: [String] = CategoryInfo.allCategories
+    var dynamicAccounts: [String] = CategoryInfo.accounts
+    var dynamicCategoryColors: [String: Color] = CategoryInfo.categoryColors
+
     var currentCategories: [String] {
-        isExpense ? CategoryInfo.expenseCategories : CategoryInfo.incomeCategories
+        isExpense ? dynamicExpenseCategories : dynamicIncomeCategories
+    }
+
+    /// Sync dynamic accounts from SwiftData query results
+    func syncAccounts(_ accounts: [String]) {
+        guard !accounts.isEmpty else { return }
+        dynamicAccounts = accounts
+        // Add any new accounts to the selected set
+        for a in accounts {
+            selectedAccounts.insert(a)
+        }
+        // Remove selected accounts that no longer exist
+        selectedAccounts = selectedAccounts.intersection(Set(accounts))
+        if let first = accounts.first, !accounts.contains(inputAccount) {
+            inputAccount = first
+        }
+        if let first = accounts.first, !accounts.contains(moveTargetAccount) {
+            moveTargetAccount = first
+        }
+    }
+
+    /// Sync dynamic categories from SwiftData query results
+    func syncCategories(_ items: [CategoryItem]) {
+        guard !items.isEmpty else { return }
+        dynamicExpenseCategories = items.filter { $0.type == "expense" }.map(\.name)
+        dynamicIncomeCategories = items.filter { $0.type == "income" }.map(\.name)
+
+        var allSet = Set(dynamicExpenseCategories)
+        allSet.formUnion(dynamicIncomeCategories)
+        dynamicAllCategories = allSet.sorted()
+
+        // Update color map
+        var colors: [String: Color] = [:]
+        for item in items {
+            colors[item.name] = item.color
+        }
+        dynamicCategoryColors = colors
+
+        // Add new categories to selected set
+        for c in dynamicAllCategories {
+            selectedCategories.insert(c)
+        }
+        // Remove selected categories that no longer exist
+        selectedCategories = selectedCategories.intersection(Set(dynamicAllCategories))
     }
 
     func filteredTransactions(from all: [Transaction]) -> [Transaction] {
-        all.filter { t in
+        // Normalize date range to whole days: start at beginning of day, end is exclusive (start of the next day)
+        let calendar = Calendar.current
+        let normalizedStart: Date? = {
+            guard let start = filterDateStart else { return nil }
+            return calendar.startOfDay(for: start)
+        }()
+        let normalizedEndExclusive: Date? = {
+            guard let end = filterDateEnd else { return nil }
+            let endStartOfDay = calendar.startOfDay(for: end)
+            return calendar.date(byAdding: .day, value: 1, to: endStartOfDay)
+        }()
+
+        return all.filter { t in
             guard selectedAccounts.contains(t.account) else { return false }
             if !filterDescription.isEmpty,
                !t.descriptionText.localizedCaseInsensitiveContains(filterDescription) {
@@ -60,8 +175,8 @@ class LedgerViewModel {
             let absAmt = abs(t.amount)
             if let min = Double(filterAmountMin), absAmt < min { return false }
             if let max = Double(filterAmountMax), absAmt > max { return false }
-            if let start = filterDateStart, t.date < start { return false }
-            if let end = filterDateEnd, t.date > end { return false }
+            if let start = normalizedStart, t.date < start { return false }
+            if let endExclusive = normalizedEndExclusive, t.date >= endExclusive { return false }
             return true
         }
         .sorted { $0.date < $1.date }
@@ -77,7 +192,7 @@ class LedgerViewModel {
         filterAmountMax = ""
         filterDateStart = nil
         filterDateEnd = nil
-        selectedCategories = Set(CategoryInfo.allCategories)
+        selectedCategories = Set(dynamicAllCategories)
     }
 
     func submitRow(context: ModelContext) {
@@ -95,12 +210,15 @@ class LedgerViewModel {
             account: inputAccount
         )
         context.insert(transaction)
-        try? context.save()
-
-        // Reset input
-        inputDescription = ""
-        inputCategory = ""
-        inputAmount = ""
+        do {
+            try context.save()
+            // Reset input on successful save
+            inputDescription = ""
+            inputCategory = ""
+            inputAmount = ""
+        } catch {
+            print("⚠️ Failed to save new transaction: \(error)")
+        }
     }
 
     func deleteSelected(from transactions: [Transaction], context: ModelContext) {
@@ -108,7 +226,11 @@ class LedgerViewModel {
         for t in toDelete {
             context.delete(t)
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("⚠️ Failed to save after deleting transactions: \(error)")
+        }
         selectedTransactionIDs.removeAll()
     }
 
@@ -117,7 +239,16 @@ class LedgerViewModel {
         for t in toMove {
             t.account = targetAccount
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("⚠️ Failed to save after moving transactions: \(error)")
+        }
         selectedTransactionIDs.removeAll()
     }
+
+    func dynamicColor(for category: String) -> Color {
+        dynamicCategoryColors[category] ?? .gray
+    }
 }
+

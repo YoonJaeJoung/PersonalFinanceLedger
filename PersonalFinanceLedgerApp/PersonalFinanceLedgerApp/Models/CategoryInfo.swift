@@ -1,45 +1,121 @@
 import SwiftUI
+import SwiftData
 
 struct CategoryInfo {
-    static let expenseCategories = [
-        "Groceries", "Food", "Restaurant Week", "NBA", "Broadway",
-        "Transportation", "Medical", "Home", "Etc"
+    // Default seed data (used on first launch only)
+    static let defaultExpenseCategories: [(name: String, hex: String)] = [
+        ("Groceries",       "#EF4444"), // 0
+        ("Food",            "#FB9238"), // 1
+        ("Restaurant Week", "#F59E0B"), // 2
+        ("Cultural",        "#FFD600"), // 3
+        ("NBA",             "#16792E"), // 4
+        ("Sports",          "#30D158"), // 5
+        ("Transportation",  "#3B82F6"), // 6
+        ("Broadway",        "#A855F7"), // 7
+        ("Medical",         "#EC4899"), // 8
+        ("Shopping",        "#FF99CC"), // 9
+        ("Home",            "#FFFFFF"), // 10
+        ("Etc",             "#94A3B8"), // 11
     ]
-    static let incomeCategories = [
-        "Allowance", "Gift", "Boucher", "Refund", "Etc"
+
+    static let defaultIncomeCategories: [(name: String, hex: String)] = [
+        ("Allowance",        "#FF4245"), // 0
+        ("Gift",             "#FF9230"), // 1
+        ("Boucher",          "#0091FF"), // 2
+        ("Refund",           "#34D399"), // 3
+        ("Currency Exchange","#FFFFFF"), // 4
+        ("Etc",              "#94A3B8"), // 5
     ]
+
+    static let defaultAccounts: [(name: String, csv: String)] = [
+        ("Chase",      "chase.csv"),
+        ("Cash",       "cash.csv"),
+        ("Toss",       "toss.csv"),
+        ("Travellog",  "travellog.csv"),
+        ("Hyundai",    "hyundai.csv"),
+    ]
+
+    // MARK: - Legacy static accessors (kept for backward compatibility during transition)
+
+    static let expenseCategories = defaultExpenseCategories.map(\.name)
+    static let incomeCategories  = defaultIncomeCategories.map(\.name)
+
     static let allCategories: [String] = {
         var set = Set(expenseCategories)
         set.formUnion(incomeCategories)
         return Array(set).sorted()
     }()
 
-    static let accounts = ["Chase", "Cash", "Toss", "Travellog"]
+    static let accounts = defaultAccounts.map(\.name)
 
-    static let accountFileMapping: [String: String] = [
-        "Chase": "chase.csv",
-        "Cash": "cash.csv",
-        "Toss": "toss.csv",
-        "Travellog": "travellog.csv"
-    ]
+    static let accountFileMapping: [String: String] = {
+        Dictionary(uniqueKeysWithValues: defaultAccounts.map { ($0.name, $0.csv) })
+    }()
 
-    static let categoryColors: [String: Color] = [
-        "Groceries": Color(red: 0.937, green: 0.267, blue: 0.267),
-        "Food": Color(red: 0.984, green: 0.573, blue: 0.235),
-        "Restaurant Week": Color(red: 0.961, green: 0.620, blue: 0.043),
-        "NBA": Color(red: 0.063, green: 0.725, blue: 0.506),
-        "Broadway": Color(red: 0.659, green: 0.333, blue: 0.969),
-        "Transportation": Color(red: 0.231, green: 0.510, blue: 0.965),
-        "Medical": Color(red: 0.925, green: 0.282, blue: 0.600),
-        "Home": Color(red: 0.420, green: 0.447, blue: 0.502),
-        "Etc": Color(red: 0.580, green: 0.639, blue: 0.722),
-        "Allowance": Color(red: 0.133, green: 0.773, blue: 0.369),
-        "Gift": Color(red: 0.220, green: 0.741, blue: 0.973),
-        "Boucher": Color(red: 0.753, green: 0.518, blue: 0.988),
-        "Refund": Color(red: 0.204, green: 0.827, blue: 0.600),
-    ]
+    static let categoryColors: [String: Color] = {
+        var dict: [String: Color] = [:]
+        for cat in defaultExpenseCategories + defaultIncomeCategories {
+            if let c = Color(hex: cat.hex) { dict[cat.name] = c }
+        }
+        return dict
+    }()
 
     static func color(for category: String) -> Color {
         categoryColors[category] ?? .gray
     }
+
+    // MARK: - Seeding & Migration
+
+    /// Seed default categories and accounts into SwiftData if none exist.
+    /// Also migrates "shopping" → "Shopping" in existing transactions.
+    static func seedDefaultsIfNeeded(context: ModelContext) {
+        // Seed categories
+        // All saves are wrapped in do/catch to avoid crashing if the store is temporarily unavailable
+        do {
+            let catDescriptor = FetchDescriptor<CategoryItem>()
+            let existingCats = try context.fetchCount(catDescriptor)
+            if existingCats == 0 {
+                for (i, cat) in defaultExpenseCategories.enumerated() {
+                    context.insert(CategoryItem(name: cat.name, type: "expense", colorHex: cat.hex, sortOrder: i))
+                }
+                for (i, cat) in defaultIncomeCategories.enumerated() {
+                    context.insert(CategoryItem(name: cat.name, type: "income", colorHex: cat.hex, sortOrder: i))
+                }
+                try context.save()
+            }
+        } catch {
+            print("⚠️ Failed to seed categories: \(error)")
+        }
+
+        // Seed accounts
+        do {
+            let acctDescriptor = FetchDescriptor<AccountItem>()
+            let existingAccts = try context.fetchCount(acctDescriptor)
+            if existingAccts == 0 {
+                for (i, acct) in defaultAccounts.enumerated() {
+                    context.insert(AccountItem(name: acct.name, csvFileName: acct.csv, sortOrder: i))
+                }
+                try context.save()
+            }
+        } catch {
+            print("⚠️ Failed to seed accounts: \(error)")
+        }
+
+        // Migrate "shopping" → "Shopping"
+        do {
+            let txDescriptor = FetchDescriptor<Transaction>()
+            let all = try context.fetch(txDescriptor)
+            var changed = false
+            for t in all {
+                if t.category.lowercased() == "shopping" && t.category != "Shopping" {
+                    t.category = "Shopping"
+                    changed = true
+                }
+            }
+            if changed { try context.save() }
+        } catch {
+            print("⚠️ Failed to migrate shopping category: \(error)")
+        }
+    }
 }
+

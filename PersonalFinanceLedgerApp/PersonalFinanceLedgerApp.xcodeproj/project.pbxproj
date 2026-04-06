@@ -7,21 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B0000001 /* PersonalFinanceLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000001; };
-		B0000002 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000002; };
-		B0000003 /* CSVImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000003; };
-		B0000004 /* CategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000004; };
-		B0000005 /* LedgerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000005; };
-		B0000006 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000006; };
-		B0000007 /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000007; };
-		B0000008 /* CategoryBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000008; };
-		B0000009 /* FilterPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000009; };
-		B000000A /* InputBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000A; };
-		B000000B /* EditTransactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000B; };
-		B000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A000000C; };
+		70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70230FFE2F3E32B80085EC2E /* AppCommands.swift */; };
+		70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BD0D902F84504F00113024 /* PDFExporter.swift */; };
+		70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */; };
+		70E1F1282F838B6700559B3C /* SwiftDataSafety.md in Resources */ = {isa = PBXBuildFile; fileRef = 70E1F1272F838B6700559B3C /* SwiftDataSafety.md */; };
+		B0000001 /* PersonalFinanceLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000001 /* PersonalFinanceLedgerApp.swift */; };
+		B0000002 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000002 /* Transaction.swift */; };
+		B0000003 /* CSVImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000003 /* CSVImporter.swift */; };
+		B0000004 /* CategoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000004 /* CategoryInfo.swift */; };
+		B0000005 /* LedgerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000005 /* LedgerViewModel.swift */; };
+		B0000006 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000006 /* ContentView.swift */; };
+		B0000007 /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000007 /* TransactionListView.swift */; };
+		B0000008 /* CategoryBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000008 /* CategoryBadge.swift */; };
+		B0000009 /* FilterPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000009 /* FilterPanelView.swift */; };
+		B000000A /* InputBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000A /* InputBarView.swift */; };
+		B000000B /* EditTransactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000B /* EditTransactionSheet.swift */; };
+		B000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A000000C /* Assets.xcassets */; };
+		B000000D /* CategoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000D2 /* CategoryItem.swift */; };
+		B000000E /* AccountItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000E /* AccountItem.swift */; };
+		B000000F /* AddCategorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000F /* AddCategorySheet.swift */; };
+		B0000010 /* EditCategorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000010 /* EditCategorySheet.swift */; };
+		B0000011 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000011 /* AddAccountSheet.swift */; };
+		B0000012 /* EditAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000012 /* EditAccountSheet.swift */; };
+		B0000013 /* BackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000013 /* BackupManager.swift */; };
+		B0000014 /* SchemaVersioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000014 /* SchemaVersioning.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		70230FFE2F3E32B80085EC2E /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
+		70BD0D902F84504F00113024 /* PDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExporter.swift; sourceTree = "<group>"; };
+		70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
+		70E1F1272F838B6700559B3C /* SwiftDataSafety.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SwiftDataSafety.md; sourceTree = "<group>"; };
 		A0000001 /* PersonalFinanceLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalFinanceLedgerApp.swift; sourceTree = "<group>"; };
 		A0000002 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		A0000003 /* CSVImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImporter.swift; sourceTree = "<group>"; };
@@ -35,6 +51,14 @@
 		A000000B /* EditTransactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransactionSheet.swift; sourceTree = "<group>"; };
 		A000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A000000D /* PersonalFinanceLedgerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PersonalFinanceLedgerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A000000D2 /* CategoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItem.swift; sourceTree = "<group>"; };
+		A000000E /* AccountItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItem.swift; sourceTree = "<group>"; };
+		A000000F /* AddCategorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategorySheet.swift; sourceTree = "<group>"; };
+		A0000010 /* EditCategorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategorySheet.swift; sourceTree = "<group>"; };
+		A0000011 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
+		A0000012 /* EditAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccountSheet.swift; sourceTree = "<group>"; };
+		A0000013 /* BackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManager.swift; sourceTree = "<group>"; };
+		A0000014 /* SchemaVersioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersioning.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +72,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		C0000001 /* Main */ = {
+		C0000001 = {
 			isa = PBXGroup;
 			children = (
 				C0000002 /* PersonalFinanceLedgerApp */,
@@ -74,6 +98,10 @@
 				A0000002 /* Transaction.swift */,
 				A0000003 /* CSVImporter.swift */,
 				A0000004 /* CategoryInfo.swift */,
+				A000000D2 /* CategoryItem.swift */,
+				A000000E /* AccountItem.swift */,
+				A0000013 /* BackupManager.swift */,
+				A0000014 /* SchemaVersioning.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -89,12 +117,20 @@
 		C0000005 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				70BD0D902F84504F00113024 /* PDFExporter.swift */,
+				70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */,
 				A0000006 /* ContentView.swift */,
 				A0000007 /* TransactionListView.swift */,
 				A0000008 /* CategoryBadge.swift */,
 				A0000009 /* FilterPanelView.swift */,
 				A000000A /* InputBarView.swift */,
 				A000000B /* EditTransactionSheet.swift */,
+				A000000F /* AddCategorySheet.swift */,
+				A0000010 /* EditCategorySheet.swift */,
+				A0000011 /* AddAccountSheet.swift */,
+				A0000012 /* EditAccountSheet.swift */,
+				70230FFE2F3E32B80085EC2E /* AppCommands.swift */,
+				70E1F1272F838B6700559B3C /* SwiftDataSafety.md */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -150,7 +186,7 @@
 				en,
 				Base,
 			);
-			mainGroup = C0000001 /* Main */;
+			mainGroup = C0000001;
 			productRefGroup = C0000006 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -165,6 +201,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70E1F1282F838B6700559B3C /* SwiftDataSafety.md in Resources */,
 				B000000C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -184,9 +221,20 @@
 				B0000006 /* ContentView.swift in Sources */,
 				B0000007 /* TransactionListView.swift in Sources */,
 				B0000008 /* CategoryBadge.swift in Sources */,
+				70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */,
 				B0000009 /* FilterPanelView.swift in Sources */,
 				B000000A /* InputBarView.swift in Sources */,
 				B000000B /* EditTransactionSheet.swift in Sources */,
+				B000000D /* CategoryItem.swift in Sources */,
+				B000000E /* AccountItem.swift in Sources */,
+				70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */,
+				B000000F /* AddCategorySheet.swift in Sources */,
+				B0000010 /* EditCategorySheet.swift in Sources */,
+				B0000011 /* AddAccountSheet.swift in Sources */,
+				B0000012 /* EditAccountSheet.swift in Sources */,
+				B0000013 /* BackupManager.swift in Sources */,
+				B0000014 /* SchemaVersioning.swift in Sources */,
+				70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +305,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Finance Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -267,8 +316,11 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personalfinance.ledger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -284,6 +336,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Finance Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -294,8 +347,11 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personalfinance.ledger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

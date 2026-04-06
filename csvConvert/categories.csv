@@ -1,0 +1,17 @@
+Name,Type,Sort Order
+Groceries,expense,0
+Allowance,income,0
+Gift,income,1
+Food,expense,1
+Restaurant Week,expense,2
+Boucher,income,2
+Sports,expense,3
+Refund,income,3
+Etc,income,4
+Cultural,expense,4
+Transportation,expense,5
+Broadway,expense,6
+Medical,expense,7
+Shopping,expense,8
+Home,expense,9
+Etc,expense,10
