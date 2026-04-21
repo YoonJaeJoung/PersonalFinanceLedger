@@ -177,7 +177,11 @@ struct SummaryView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        #if os(macOS)
         .background(Color(nsColor: .windowBackgroundColor))
+        #else
+        .background(Color(.systemGroupedBackground))
+        #endif
         .onAppear {
             cachedRefundMatchedIDs = Self.computeRefundMatches(from: transactions)
         }
@@ -200,6 +204,7 @@ struct SummaryView: View {
             }
             Spacer()
 
+            #if os(macOS)
             Button {
                 PDFExporter.exportPDF(
                     transactions: transactions,
@@ -214,6 +219,22 @@ struct SummaryView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            #else
+            ShareLink(
+                item: PDFExporter.generatePDFData(
+                    transactions: transactions,
+                    allTransactions: allTransactions,
+                    categoryItems: categoryItems,
+                    accountItems: accountItems,
+                    viewModel: viewModel,
+                    refundMatchedIDs: cachedRefundMatchedIDs
+                ) ?? Data(),
+                preview: SharePreview(PDFExporter.defaultFileName)
+            ) {
+                Label("Share PDF", systemImage: "square.and.arrow.up")
+            }
+            .buttonStyle(.bordered)
+            #endif
 
             VStack(alignment: .trailing, spacing: 4) {
                 Text("Total Expenses")
@@ -495,7 +516,11 @@ struct StackedBarDetail: View {
             }
         }
         .padding(12)
+        #if os(macOS)
         .background(Color(nsColor: .controlBackgroundColor))
+        #else
+        .background(Color(.secondarySystemGroupedBackground))
+        #endif
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

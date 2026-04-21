@@ -18,7 +18,7 @@
                BlueprintIdentifier = "E0000001"
                BuildableName = "Finance Ledger.app"
                BlueprintName = "Finance Ledger"
-               ReferencedContainer = "container:PersonalFinanceLedger.xcodeproj">
+               ReferencedContainer = "container:PersonalFinanceLedgerApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,7 +48,7 @@
             BlueprintIdentifier = "E0000001"
             BuildableName = "Finance Ledger.app"
             BlueprintName = "Finance Ledger"
-            ReferencedContainer = "container:PersonalFinanceLedger.xcodeproj">
+            ReferencedContainer = "container:PersonalFinanceLedgerApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -65,7 +65,7 @@
             BlueprintIdentifier = "E0000001"
             BuildableName = "Finance Ledger.app"
             BlueprintName = "Finance Ledger"
-            ReferencedContainer = "container:PersonalFinanceLedger.xcodeproj">
+            ReferencedContainer = "container:PersonalFinanceLedgerApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

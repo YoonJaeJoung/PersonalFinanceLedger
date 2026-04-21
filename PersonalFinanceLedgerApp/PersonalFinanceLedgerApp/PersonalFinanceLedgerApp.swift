@@ -5,27 +5,34 @@ struct PersonalFinanceLedgerApp: App {
 
     @State private var store = LedgerStore()
 
+    #if os(macOS)
     @State private var showAddCategory = false
     @State private var showEditCategories = false
     @State private var showAddAccount = false
     @State private var showEditAccounts = false
+    #endif
 
     var body: some Scene {
         WindowGroup {
+            #if os(iOS)
+            iOSRootView()
+                .environment(store)
+                .onAppear {
+                    SwiftDataMigrator.migrateIfNeeded(to: store)
+                }
+            #else
             ContentView(
                 showAddCategory: $showAddCategory,
                 showEditCategories: $showEditCategories,
                 showAddAccount: $showAddAccount,
                 showEditAccounts: $showEditAccounts
             )
-            #if os(macOS)
             .frame(minWidth: 900, minHeight: 600)
-            #endif
             .environment(store)
             .onAppear {
-                // One-time migration from SwiftData to JSON
                 SwiftDataMigrator.migrateIfNeeded(to: store)
             }
+            #endif
         }
         #if os(macOS)
         .windowStyle(.automatic)

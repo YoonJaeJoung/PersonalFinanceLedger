@@ -52,8 +52,14 @@ struct EditCategorySheet: View {
                     }
                 }
             }
+            #if os(macOS)
             .listStyle(.inset(alternatesRowBackgrounds: true))
+            #else
+            .listStyle(.insetGrouped)
+            #endif
+            #if os(macOS)
             .frame(width: 450, height: 350)
+            #endif
 
             HStack {
                 Spacer()
@@ -64,7 +70,9 @@ struct EditCategorySheet: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
         }
+        #if os(macOS)
         .frame(width: 480)
+        #endif
         .alert("Cannot Delete", isPresented: $showDeleteError) {
             Button("OK") {}
         } message: {

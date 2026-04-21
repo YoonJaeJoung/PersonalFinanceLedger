@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70230FFE2F3E32B80085EC2E /* AppCommands.swift */; };
+		7055C0B92F9734CB006EA56C /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7055C0B82F9734CB006EA56C /* AppIcon.icon */; };
+		7055C0BC2F974092006EA56C /* iOSRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055C0BB2F974092006EA56C /* iOSRootView.swift */; };
+		7055C0BE2F974093006EA56C /* iOSDataTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055C0BD2F974093006EA56C /* iOSDataTab.swift */; };
+		7055C0C02F974095006EA56C /* iOSFilterPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055C0BF2F974095006EA56C /* iOSFilterPanel.swift */; };
+		7055C0C22F974096006EA56C /* iOSInputBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055C0C12F974096006EA56C /* iOSInputBar.swift */; };
+		7055C0C42F974097006EA56C /* iOSEditTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055C0C32F974097006EA56C /* iOSEditTransactionView.swift */; };
 		70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BD0D902F84504F00113024 /* PDFExporter.swift */; };
 		70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */; };
 		70D1EB032F971EAD0044DC0B /* LedgerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D1EB022F971EAD0044DC0B /* LedgerStore.swift */; };
@@ -36,6 +42,12 @@
 
 /* Begin PBXFileReference section */
 		70230FFE2F3E32B80085EC2E /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
+		7055C0B82F9734CB006EA56C /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		7055C0BB2F974092006EA56C /* iOSRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSRootView.swift; sourceTree = "<group>"; };
+		7055C0BD2F974093006EA56C /* iOSDataTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSDataTab.swift; sourceTree = "<group>"; };
+		7055C0BF2F974095006EA56C /* iOSFilterPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSFilterPanel.swift; sourceTree = "<group>"; };
+		7055C0C12F974096006EA56C /* iOSInputBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSInputBar.swift; sourceTree = "<group>"; };
+		7055C0C32F974097006EA56C /* iOSEditTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSEditTransactionView.swift; sourceTree = "<group>"; };
 		70BD0D902F84504F00113024 /* PDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExporter.swift; sourceTree = "<group>"; };
 		70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
 		70D1EB022F971EAD0044DC0B /* LedgerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerStore.swift; sourceTree = "<group>"; };
@@ -75,9 +87,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7055C0BA2F97402F006EA56C /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				7055C0BB2F974092006EA56C /* iOSRootView.swift */,
+				7055C0BD2F974093006EA56C /* iOSDataTab.swift */,
+				7055C0BF2F974095006EA56C /* iOSFilterPanel.swift */,
+				7055C0C12F974096006EA56C /* iOSInputBar.swift */,
+				7055C0C32F974097006EA56C /* iOSEditTransactionView.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
 		C0000001 = {
 			isa = PBXGroup;
 			children = (
+				7055C0B82F9734CB006EA56C /* AppIcon.icon */,
 				C0000002 /* PersonalFinanceLedgerApp */,
 				C0000006 /* Products */,
 			);
@@ -136,6 +161,7 @@
 				A0000012 /* EditAccountSheet.swift */,
 				70230FFE2F3E32B80085EC2E /* AppCommands.swift */,
 				70E1F1272F838B6700559B3C /* SwiftDataSafety.md */,
+				7055C0BA2F97402F006EA56C /* iOS */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -183,7 +209,7 @@
 					};
 				};
 			};
-			buildConfigurationList = G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedger" */;
+			buildConfigurationList = G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -208,6 +234,7 @@
 			files = (
 				70E1F1282F838B6700559B3C /* SwiftDataSafety.md in Resources */,
 				B000000C /* Assets.xcassets in Resources */,
+				7055C0B92F9734CB006EA56C /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,17 +249,21 @@
 				B0000002 /* Transaction.swift in Sources */,
 				B0000003 /* CSVImporter.swift in Sources */,
 				B0000004 /* CategoryInfo.swift in Sources */,
+				7055C0C02F974095006EA56C /* iOSFilterPanel.swift in Sources */,
 				B0000005 /* LedgerViewModel.swift in Sources */,
 				B0000006 /* ContentView.swift in Sources */,
 				70D1EB052F971ECC0044DC0B /* SwiftDataMigrator.swift in Sources */,
 				B0000007 /* TransactionListView.swift in Sources */,
+				7055C0C22F974096006EA56C /* iOSInputBar.swift in Sources */,
 				B0000008 /* CategoryBadge.swift in Sources */,
 				70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */,
 				B0000009 /* FilterPanelView.swift in Sources */,
+				7055C0C42F974097006EA56C /* iOSEditTransactionView.swift in Sources */,
 				B000000A /* InputBarView.swift in Sources */,
 				B000000B /* EditTransactionSheet.swift in Sources */,
 				B000000D /* CategoryItem.swift in Sources */,
 				B000000E /* AccountItem.swift in Sources */,
+				7055C0BE2F974093006EA56C /* iOSDataTab.swift in Sources */,
 				70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */,
 				B000000F /* AddCategorySheet.swift in Sources */,
 				B0000010 /* EditCategorySheet.swift in Sources */,
@@ -240,6 +271,7 @@
 				B0000011 /* AddAccountSheet.swift in Sources */,
 				B0000012 /* EditAccountSheet.swift in Sources */,
 				B0000013 /* BackupManager.swift in Sources */,
+				7055C0BC2F974092006EA56C /* iOSRootView.swift in Sources */,
 				70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -304,6 +336,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = PersonalFinanceLedgerApp/PersonalFinanceLedgerApp.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -338,6 +371,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = PersonalFinanceLedgerApp/PersonalFinanceLedgerApp.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -370,7 +404,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedger" */ = {
+		G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				H0000001 /* Debug */,

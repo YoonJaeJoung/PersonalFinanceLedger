@@ -29,8 +29,14 @@ struct EditAccountSheet: View {
                     accountRow(acct)
                 }
             }
+            #if os(macOS)
             .listStyle(.inset(alternatesRowBackgrounds: true))
+            #else
+            .listStyle(.insetGrouped)
+            #endif
+            #if os(macOS)
             .frame(width: 400, height: 250)
+            #endif
 
             HStack {
                 Spacer()
@@ -41,7 +47,9 @@ struct EditAccountSheet: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
         }
+        #if os(macOS)
         .frame(width: 430)
+        #endif
         .alert("Cannot Delete", isPresented: $showDeleteError) {
             Button("OK") {}
         } message: {

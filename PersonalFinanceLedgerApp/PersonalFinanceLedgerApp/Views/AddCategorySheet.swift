@@ -26,7 +26,9 @@ struct AddCategorySheet: View {
                 ColorPicker("Color", selection: $selectedColor, supportsOpacity: false)
             }
             .formStyle(.grouped)
+            #if os(macOS)
             .frame(width: 360, height: 200)
+            #endif
 
             HStack {
                 Button("Cancel") { dismiss() }
@@ -43,7 +45,9 @@ struct AddCategorySheet: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
         }
+        #if os(macOS)
         .frame(width: 400)
+        #endif
     }
 
     private func save() {

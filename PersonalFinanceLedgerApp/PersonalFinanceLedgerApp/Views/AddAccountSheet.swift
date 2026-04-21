@@ -17,7 +17,9 @@ struct AddAccountSheet: View {
                 TextField("Account Name", text: $name)
             }
             .formStyle(.grouped)
+            #if os(macOS)
             .frame(width: 360, height: 120)
+            #endif
 
             HStack {
                 Button("Cancel") { dismiss() }
@@ -34,7 +36,9 @@ struct AddAccountSheet: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
         }
+        #if os(macOS)
         .frame(width: 400)
+        #endif
     }
 
     private func save() {

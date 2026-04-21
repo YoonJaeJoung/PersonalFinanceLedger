@@ -1,11 +1,11 @@
 #if canImport(AppKit)
 import AppKit
-private typealias PlatformFont = NSFont
-private typealias PlatformColor = NSColor
+typealias PlatformFont = NSFont
+typealias PlatformColor = NSColor
 #elseif canImport(UIKit)
 import UIKit
-private typealias PlatformFont = UIFont
-private typealias PlatformColor = UIColor
+typealias PlatformFont = UIFont
+typealias PlatformColor = UIColor
 #endif
 import SwiftUI
 import UniformTypeIdentifiers
@@ -251,7 +251,7 @@ struct PDFExporter {
                          font: bodyFont, color: .label)
                 drawText(ctx: ctx, text: String(format: "$%.2f", catTotal),
                          rect: CGRect(x: col4, y: y, width: col4W, height: 13),
-                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabelColor, alignment: .right)
+                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabel, alignment: .right)
                 y += 13
             }
 
@@ -271,7 +271,7 @@ struct PDFExporter {
                          font: bodyFont, color: .label)
                 drawText(ctx: ctx, text: String(format: "$%.2f", catTotal),
                          rect: CGRect(x: col4, y: y, width: col4W, height: 13),
-                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabelColor, alignment: .right)
+                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabel, alignment: .right)
                 y += 13
             }
 
