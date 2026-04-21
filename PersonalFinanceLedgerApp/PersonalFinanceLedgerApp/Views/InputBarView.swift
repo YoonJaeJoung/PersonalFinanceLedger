@@ -1,10 +1,9 @@
 import SwiftUI
-import SwiftData
 
 struct InputBarView: View {
     @Bindable var viewModel: LedgerViewModel
     var categoryItems: [CategoryItem]
-    @Environment(\.modelContext) private var modelContext
+    @Environment(LedgerStore.self) private var store
     @FocusState private var isCategoryFocused: Bool
     @State private var suggestionsHeight: CGFloat = 0
 
@@ -74,11 +73,11 @@ struct InputBarView: View {
             TextField("Amount", text: $viewModel.inputAmount)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 80)
-                .onSubmit { viewModel.submitRow(context: modelContext) }
+                .onSubmit { viewModel.submitRow(store: store) }
 
             // Add button
             Button("Add") {
-                viewModel.submitRow(context: modelContext)
+                viewModel.submitRow(store: store)
             }
             .buttonStyle(.borderedProminent)
             .keyboardShortcut(.return, modifiers: [])
@@ -89,7 +88,6 @@ struct InputBarView: View {
     }
 
     private var categoryField: some View {
-        // Keep the TextField in the layout; render suggestions as an overlay above it so they don't affect layout.
         VStack(alignment: .leading, spacing: 0) {
             TextField("Category", text: $viewModel.inputCategory)
                 .textFieldStyle(.roundedBorder)
@@ -138,7 +136,6 @@ struct InputBarView: View {
                 )
                 .shadow(color: .black.opacity(0.15), radius: 6, y: 3)
                 .frame(width: 160)
-                // Measure the overlay height so we can place it above the text field without affecting layout
                 .background(
                     GeometryReader { geo in
                         Color.clear
@@ -148,12 +145,9 @@ struct InputBarView: View {
                             }
                     }
                 )
-                // Position the overlay above the text field with a small gap
                 .offset(y: -(suggestionsHeight + 6))
                 .zIndex(10)
             }
         }
     }
 }
-
-

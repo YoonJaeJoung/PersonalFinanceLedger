@@ -1,13 +1,13 @@
 import Foundation
-import SwiftData
 
-@Model
-final class AccountItem {
+struct AccountItem: Identifiable, Codable, Hashable {
+    var id: UUID
     var name: String
     var csvFileName: String
     var sortOrder: Int
 
-    init(name: String, csvFileName: String = "", sortOrder: Int = 0) {
+    init(id: UUID = UUID(), name: String, csvFileName: String = "", sortOrder: Int = 0) {
+        self.id = id
         self.name = name
         self.csvFileName = csvFileName
         self.sortOrder = sortOrder

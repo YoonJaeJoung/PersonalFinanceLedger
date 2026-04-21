@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 
 struct CSVImporter {
     private static let dateFormatter: DateFormatter = {
@@ -9,13 +8,13 @@ struct CSVImporter {
         return f
     }()
 
-    /// Import a single CSV file into SwiftData. Returns number of rows imported.
-    static func importCSV(from url: URL, account: String, context: ModelContext) throws -> Int {
+    /// Import a single CSV file. Returns number of rows imported.
+    static func importCSV(from url: URL, account: String, store: LedgerStore) throws -> Int {
         let content = try String(contentsOf: url, encoding: .utf8)
         let lines = content.components(separatedBy: .newlines)
         guard lines.count > 1 else { return 0 }
 
-        var count = 0
+        var batch: [Transaction] = []
         for line in lines.dropFirst() {
             let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty { continue }
@@ -37,32 +36,19 @@ struct CSVImporter {
                 amount: amount,
                 account: account
             )
-            context.insert(transaction)
-            count += 1
+            batch.append(transaction)
         }
-        try context.save()
-        return count
+        store.addTransactions(batch)
+        return batch.count
     }
 
     /// Import all known CSV files from a directory using dynamic account items.
-    static func importAllCSVs(from directoryURL: URL, accountItems: [AccountItem], context: ModelContext) throws -> Int {
+    static func importAllCSVs(from directoryURL: URL, accountItems: [AccountItem], store: LedgerStore) throws -> Int {
         var total = 0
         for acct in accountItems where !acct.csvFileName.isEmpty {
             let fileURL = directoryURL.appendingPathComponent(acct.csvFileName)
             guard FileManager.default.fileExists(atPath: fileURL.path) else { continue }
-            let count = try importCSV(from: fileURL, account: acct.name, context: context)
-            total += count
-        }
-        return total
-    }
-
-    /// Legacy: Import using static account file mapping.
-    static func importAllCSVs(from directoryURL: URL, context: ModelContext) throws -> Int {
-        var total = 0
-        for (account, filename) in CategoryInfo.accountFileMapping {
-            let fileURL = directoryURL.appendingPathComponent(filename)
-            guard FileManager.default.fileExists(atPath: fileURL.path) else { continue }
-            let count = try importCSV(from: fileURL, account: account, context: context)
+            let count = try importCSV(from: fileURL, account: acct.name, store: store)
             total += count
         }
         return total

@@ -1,15 +1,15 @@
 import Foundation
 import SwiftUI
-import SwiftData
 
-@Model
-final class CategoryItem {
+struct CategoryItem: Identifiable, Codable, Hashable {
+    var id: UUID
     var name: String
     var type: String          // "expense" or "income"
     var colorHex: String      // e.g. "#EF4444"
     var sortOrder: Int
 
-    init(name: String, type: String, colorHex: String, sortOrder: Int = 0) {
+    init(id: UUID = UUID(), name: String, type: String, colorHex: String, sortOrder: Int = 0) {
+        self.id = id
         self.name = name
         self.type = type
         self.colorHex = colorHex
@@ -36,6 +36,7 @@ extension Color {
         self.init(red: r, green: g, blue: b)
     }
 
+    #if canImport(AppKit)
     func toHex() -> String {
         let components = NSColor(self).usingColorSpace(.sRGB)
         let r = Int((components?.redComponent ?? 0) * 255)
@@ -43,4 +44,11 @@ extension Color {
         let b = Int((components?.blueComponent ?? 0) * 255)
         return String(format: "#%02X%02X%02X", r, g, b)
     }
+    #elseif canImport(UIKit)
+    func toHex() -> String {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
+        return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
+    }
+    #endif
 }

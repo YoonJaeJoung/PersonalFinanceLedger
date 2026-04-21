@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import SwiftData
 
 @Observable
 class LedgerViewModel {
@@ -48,10 +47,8 @@ class LedgerViewModel {
                 return
             }
             if let parsed = Self.filterDateFormatter.date(from: trimmed) {
-                // Normalize to the start of day
                 filterDateStart = Calendar.current.startOfDay(for: parsed)
             }
-            // If parsing fails, leave the previous date in place until the input becomes valid
         }
     }
 
@@ -69,15 +66,13 @@ class LedgerViewModel {
                 return
             }
             if let parsed = Self.filterDateFormatter.date(from: trimmed) {
-                // Normalize to the start of day (end is treated as exclusive at start of next day in filtering)
                 filterDateEnd = Calendar.current.startOfDay(for: parsed)
             }
-            // If parsing fails, leave the previous date in place until the input becomes valid
         }
     }
 
-    // Table selection
-    var selectedTransactionIDs = Set<PersistentIdentifier>()
+    // Table selection (UUID replaces PersistentIdentifier)
+    var selectedTransactionIDs = Set<UUID>()
 
     // Editing
     var editingTransaction: Transaction? = nil
@@ -98,7 +93,7 @@ class LedgerViewModel {
     // Move account
     var moveTargetAccount = "Chase"
 
-    // Dynamic category/account data (populated from SwiftData)
+    // Dynamic category/account data (populated from LedgerStore)
     var dynamicExpenseCategories: [String] = CategoryInfo.expenseCategories
     var dynamicIncomeCategories: [String] = CategoryInfo.incomeCategories
     var dynamicAllCategories: [String] = CategoryInfo.allCategories
@@ -109,15 +104,13 @@ class LedgerViewModel {
         isExpense ? dynamicExpenseCategories : dynamicIncomeCategories
     }
 
-    /// Sync dynamic accounts from SwiftData query results
+    /// Sync dynamic accounts from store data
     func syncAccounts(_ accounts: [String]) {
         guard !accounts.isEmpty else { return }
         dynamicAccounts = accounts
-        // Add any new accounts to the selected set
         for a in accounts {
             selectedAccounts.insert(a)
         }
-        // Remove selected accounts that no longer exist
         selectedAccounts = selectedAccounts.intersection(Set(accounts))
         if let first = accounts.first, !accounts.contains(inputAccount) {
             inputAccount = first
@@ -127,7 +120,7 @@ class LedgerViewModel {
         }
     }
 
-    /// Sync dynamic categories from SwiftData query results
+    /// Sync dynamic categories from store data
     func syncCategories(_ items: [CategoryItem]) {
         guard !items.isEmpty else { return }
         dynamicExpenseCategories = items.filter { $0.type == "expense" }.map(\.name)
@@ -137,23 +130,19 @@ class LedgerViewModel {
         allSet.formUnion(dynamicIncomeCategories)
         dynamicAllCategories = allSet.sorted()
 
-        // Update color map
         var colors: [String: Color] = [:]
         for item in items {
             colors[item.name] = item.color
         }
         dynamicCategoryColors = colors
 
-        // Add new categories to selected set
         for c in dynamicAllCategories {
             selectedCategories.insert(c)
         }
-        // Remove selected categories that no longer exist
         selectedCategories = selectedCategories.intersection(Set(dynamicAllCategories))
     }
 
     func filteredTransactions(from all: [Transaction]) -> [Transaction] {
-        // Normalize date range to whole days: start at beginning of day, end is exclusive (start of the next day)
         let calendar = Calendar.current
         let normalizedStart: Date? = {
             guard let start = filterDateStart else { return nil }
@@ -195,7 +184,7 @@ class LedgerViewModel {
         selectedCategories = Set(dynamicAllCategories)
     }
 
-    func submitRow(context: ModelContext) {
+    func submitRow(store: LedgerStore) {
         let desc = inputDescription.trimmingCharacters(in: .whitespaces)
         let cat = inputCategory.trimmingCharacters(in: .whitespaces)
         guard !desc.isEmpty, !cat.isEmpty,
@@ -209,41 +198,19 @@ class LedgerViewModel {
             amount: finalAmount,
             account: inputAccount
         )
-        context.insert(transaction)
-        do {
-            try context.save()
-            // Reset input on successful save
-            inputDescription = ""
-            inputCategory = ""
-            inputAmount = ""
-        } catch {
-            print("⚠️ Failed to save new transaction: \(error)")
-        }
+        store.addTransaction(transaction)
+        inputDescription = ""
+        inputCategory = ""
+        inputAmount = ""
     }
 
-    func deleteSelected(from transactions: [Transaction], context: ModelContext) {
-        let toDelete = transactions.filter { selectedTransactionIDs.contains($0.persistentModelID) }
-        for t in toDelete {
-            context.delete(t)
-        }
-        do {
-            try context.save()
-        } catch {
-            print("⚠️ Failed to save after deleting transactions: \(error)")
-        }
+    func deleteSelected(store: LedgerStore) {
+        store.deleteTransactions(ids: selectedTransactionIDs)
         selectedTransactionIDs.removeAll()
     }
 
-    func moveSelected(from transactions: [Transaction], to targetAccount: String, context: ModelContext) {
-        let toMove = transactions.filter { selectedTransactionIDs.contains($0.persistentModelID) }
-        for t in toMove {
-            t.account = targetAccount
-        }
-        do {
-            try context.save()
-        } catch {
-            print("⚠️ Failed to save after moving transactions: \(error)")
-        }
+    func moveSelected(to targetAccount: String, store: LedgerStore) {
+        store.moveTransactions(ids: selectedTransactionIDs, toAccount: targetAccount)
         selectedTransactionIDs.removeAll()
     }
 
@@ -251,4 +218,3 @@ class LedgerViewModel {
         dynamicCategoryColors[category] ?? .gray
     }
 }
-

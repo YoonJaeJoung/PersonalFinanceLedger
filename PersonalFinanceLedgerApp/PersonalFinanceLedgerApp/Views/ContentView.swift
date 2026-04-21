@@ -1,11 +1,8 @@
 import SwiftUI
-import SwiftData
+import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Transaction.date) private var allTransactions: [Transaction]
-    @Query(sort: \CategoryItem.sortOrder) private var categoryItems: [CategoryItem]
-    @Query(sort: \AccountItem.sortOrder) private var accountItems: [AccountItem]
+    @Environment(LedgerStore.self) private var store
     @State private var viewModel = LedgerViewModel()
     @State private var hasSeeded = false
 
@@ -14,13 +11,22 @@ struct ContentView: View {
     @Binding var showAddAccount: Bool
     @Binding var showEditAccounts: Bool
 
+    #if os(iOS)
+    @State private var showCSVImporter = false
+    @State private var showCSVExporter = false
+    @State private var showCategoryExporter = false
+    @State private var showCategoryImporter = false
+    #endif
+
     var body: some View {
         NavigationSplitView {
             sidebar
         } detail: {
             detail
         }
+        #if os(macOS)
         .navigationSplitViewColumnWidth(min: 180, ideal: 220)
+        #endif
         .alert("CSV Import", isPresented: $viewModel.showingImportAlert) {
             Button("OK") {}
         } message: {
@@ -38,19 +44,54 @@ struct ContentView: View {
         .sheet(isPresented: $showEditAccounts) {
             EditAccountSheet()
         }
+        #if os(iOS)
+        .fileImporter(isPresented: $showCSVImporter, allowedContentTypes: [.folder]) { result in
+            if case .success(let url) = result {
+                guard url.startAccessingSecurityScopedResource() else { return }
+                defer { url.stopAccessingSecurityScopedResource() }
+                performCSVImport(from: url)
+            }
+        }
+        .fileImporter(isPresented: $showCategoryImporter, allowedContentTypes: [.commaSeparatedText]) { result in
+            if case .success(let url) = result {
+                guard url.startAccessingSecurityScopedResource() else { return }
+                defer { url.stopAccessingSecurityScopedResource() }
+                performCategoriesImport(from: url)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button("Import CSV Files…") { showCSVImporter = true }
+                    Button("Import Categories…") { showCategoryImporter = true }
+                    Divider()
+                    Button("Add Category…") { showAddCategory = true }
+                    Button("Edit Categories…") { showEditCategories = true }
+                    Divider()
+                    Button("Add Account…") { showAddAccount = true }
+                    Button("Edit Accounts…") { showEditAccounts = true }
+                    Divider()
+                    Button("Clear Data & Restore Defaults", role: .destructive) { clearDataAndRestoreDefaults() }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        #endif
         .onAppear {
             if !hasSeeded {
-                CategoryInfo.seedDefaultsIfNeeded(context: modelContext)
-                cleanupDuplicateCategories()
+                store.seedDefaultsIfNeeded()
+                store.cleanupDuplicateCategories()
                 hasSeeded = true
             }
         }
-        .onChange(of: accountItems.map { "\($0.name)-\($0.sortOrder)" }, initial: true) { _, _ in
-            viewModel.syncAccounts(accountItems.map(\.name))
+        .onChange(of: store.accounts.map { "\($0.name)-\($0.sortOrder)" }, initial: true) { _, _ in
+            viewModel.syncAccounts(store.sortedAccounts.map(\.name))
         }
-        .onChange(of: categoryItems.map { "\($0.name)-\($0.type)-\($0.sortOrder)-\($0.colorHex)" }, initial: true) { _, _ in
-            viewModel.syncCategories(categoryItems)
+        .onChange(of: store.categories.map { "\($0.name)-\($0.type)-\($0.sortOrder)-\($0.colorHex)" }, initial: true) { _, _ in
+            viewModel.syncCategories(store.sortedCategories)
         }
+        #if os(macOS)
         .focusedSceneValue(\.importExportActions, ImportExportActions(
             importCSV: { importCSVFiles() },
             exportCSV: { exportCSVFiles() },
@@ -60,23 +101,7 @@ struct ContentView: View {
         .focusedSceneValue(\.maintenanceActions, MaintenanceActions(
             clearAndRestoreDefaults: { clearDataAndRestoreDefaults() }
         ))
-    }
-
-    private func cleanupDuplicateCategories() {
-        var seen = Set<String>()
-        for item in categoryItems {
-            let key = "\(item.name)-\(item.type)"
-            if seen.contains(key) {
-                modelContext.delete(item)
-            } else {
-                seen.insert(key)
-            }
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save after cleaning duplicate categories: \(error)")
-        }
+        #endif
     }
 
     // MARK: - Sidebar
@@ -103,7 +128,7 @@ struct ContentView: View {
             }
 
             Section("Accounts") {
-                ForEach(accountItems) { acct in
+                ForEach(store.sortedAccounts) { acct in
                     Toggle(isOn: Binding(
                         get: { viewModel.selectedAccounts.contains(acct.name) },
                         set: { isOn in
@@ -113,7 +138,9 @@ struct ContentView: View {
                     )) {
                         Text(acct.name)
                     }
+                    #if os(macOS)
                     .toggleStyle(.checkbox)
+                    #endif
                 }
             }
         }
@@ -128,16 +155,16 @@ struct ContentView: View {
         case .data:
             TransactionListView(
                 viewModel: viewModel,
-                allTransactions: allTransactions,
-                categoryItems: categoryItems,
-                accountItems: accountItems
+                allTransactions: store.sortedTransactions,
+                categoryItems: store.sortedCategories,
+                accountItems: store.sortedAccounts
             )
         case .summary:
             SummaryView(
-                transactions: viewModel.filteredTransactions(from: allTransactions),
-                allTransactions: allTransactions,
-                categoryItems: categoryItems,
-                accountItems: accountItems,
+                transactions: viewModel.filteredTransactions(from: store.sortedTransactions),
+                allTransactions: store.sortedTransactions,
+                categoryItems: store.sortedCategories,
+                accountItems: store.sortedAccounts,
                 viewModel: viewModel
             )
         }
@@ -145,6 +172,7 @@ struct ContentView: View {
 
     // MARK: - CSV Import
 
+    #if os(macOS)
     private func importCSVFiles() {
         let panel = NSOpenPanel()
         panel.title = "Select the data folder containing CSV files"
@@ -153,21 +181,24 @@ struct ContentView: View {
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
-            // Safety: backup current database before bulk import
-            BackupManager.shared.backupDatabase()
-
-            do {
-                let count = try CSVImporter.importAllCSVs(from: url, accountItems: accountItems, context: modelContext)
-                viewModel.importMessage = "Successfully imported \(count) transactions."
-            } catch {
-                viewModel.importMessage = "Import error: \(error.localizedDescription)"
-            }
-            viewModel.showingImportAlert = true
+            performCSVImport(from: url)
         }
+    }
+    #endif
+
+    private func performCSVImport(from url: URL) {
+        do {
+            let count = try CSVImporter.importAllCSVs(from: url, accountItems: store.sortedAccounts, store: store)
+            viewModel.importMessage = "Successfully imported \(count) transactions."
+        } catch {
+            viewModel.importMessage = "Import error: \(error.localizedDescription)"
+        }
+        viewModel.showingImportAlert = true
     }
 
     // MARK: - CSV Export
 
+    #if os(macOS)
     private func exportCSVFiles() {
         let panel = NSOpenPanel()
         panel.title = "Select export destination folder"
@@ -176,20 +207,26 @@ struct ContentView: View {
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
-            var exported = 0
-            for acct in accountItems where !acct.csvFileName.isEmpty {
-                let csv = CSVImporter.exportCSV(transactions: allTransactions, account: acct.name)
-                let fileURL = url.appendingPathComponent(acct.csvFileName)
-                try? csv.write(to: fileURL, atomically: true, encoding: .utf8)
-                exported += 1
-            }
-            viewModel.importMessage = "Exported \(exported) CSV files."
-            viewModel.showingImportAlert = true
+            performCSVExport(to: url)
         }
+    }
+    #endif
+
+    private func performCSVExport(to url: URL) {
+        var exported = 0
+        for acct in store.sortedAccounts where !acct.csvFileName.isEmpty {
+            let csv = CSVImporter.exportCSV(transactions: store.sortedTransactions, account: acct.name)
+            let fileURL = url.appendingPathComponent(acct.csvFileName)
+            try? csv.write(to: fileURL, atomically: true, encoding: .utf8)
+            exported += 1
+        }
+        viewModel.importMessage = "Exported \(exported) CSV files."
+        viewModel.showingImportAlert = true
     }
 
     // MARK: - Categories CSV Export
 
+    #if os(macOS)
     private func exportCategoriesCSV() {
         let panel = NSOpenPanel()
         panel.title = "Select export destination folder"
@@ -198,28 +235,33 @@ struct ContentView: View {
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
-            // Build CSV header
-            var csv = "Name,Type,Sort Order,ColorHex\n"
-            for item in categoryItems {
-                let name = item.name.replacingOccurrences(of: ",", with: " ")
-                let type = item.type
-                let sort = String(item.sortOrder)
-                let color = item.colorHex
-                csv.append("\(name),\(type),\(sort),\(color)\n")
-            }
-            let fileURL = url.appendingPathComponent("categories.csv")
-            do {
-                try csv.write(to: fileURL, atomically: true, encoding: .utf8)
-                viewModel.importMessage = "Exported categories.csv."
-            } catch {
-                viewModel.importMessage = "Export error: \(error.localizedDescription)"
-            }
-            viewModel.showingImportAlert = true
+            performCategoriesExport(to: url)
         }
+    }
+    #endif
+
+    private func performCategoriesExport(to url: URL) {
+        var csv = "Name,Type,Sort Order,ColorHex\n"
+        for item in store.sortedCategories {
+            let name = item.name.replacingOccurrences(of: ",", with: " ")
+            let type = item.type
+            let sort = String(item.sortOrder)
+            let color = item.colorHex
+            csv.append("\(name),\(type),\(sort),\(color)\n")
+        }
+        let fileURL = url.appendingPathComponent("categories.csv")
+        do {
+            try csv.write(to: fileURL, atomically: true, encoding: .utf8)
+            viewModel.importMessage = "Exported categories.csv."
+        } catch {
+            viewModel.importMessage = "Export error: \(error.localizedDescription)"
+        }
+        viewModel.showingImportAlert = true
     }
 
     // MARK: - Categories CSV Import
 
+    #if os(macOS)
     private func importCategoriesCSV() {
         let panel = NSOpenPanel()
         panel.title = "Select categories CSV file"
@@ -228,74 +270,46 @@ struct ContentView: View {
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
-            do {
-                let content = try String(contentsOf: url, encoding: .utf8)
-                let lines = content.components(separatedBy: .newlines)
-                if lines.count > 1 {
-                    var count = 0
-                    for line in lines.dropFirst() {
-                        let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if trimmed.isEmpty { continue }
-                        let fields = trimmed.components(separatedBy: ",")
-                        if fields.count >= 3 {
-                            let name = fields[0].trimmingCharacters(in: .whitespaces)
-                            let type = fields[1].trimmingCharacters(in: .whitespaces)
-                            let sortOrderStr = fields[2].trimmingCharacters(in: .whitespaces)
-                            let colorHex = fields.count >= 4
-                                ? fields[3].trimmingCharacters(in: .whitespaces)
-                                : "#9CA3AF"
-                            
-                            let sortOrder = Int(sortOrderStr) ?? 0
-                            
-                            if let existing = categoryItems.first(where: { $0.name == name && $0.type == type }) {
-                                existing.sortOrder = sortOrder
-                                existing.colorHex = colorHex
-                            } else {
-                                let newCat = CategoryItem(name: name, type: type, colorHex: colorHex, sortOrder: sortOrder)
-                                modelContext.insert(newCat)
-                            }
-                            count += 1
-                        }
-                    }
-                    do {
-                        try modelContext.save()
-                    } catch {
-                        print("⚠️ Failed to save categories after import: \(error)")
-                        viewModel.importMessage = "Import error: \(error.localizedDescription)"
-                    }
-                    viewModel.importMessage = "Successfully imported \(count) categories."
-                } else {
-                    viewModel.importMessage = "CSV file is empty."
-                }
-            } catch {
-                viewModel.importMessage = "Import error: \(error.localizedDescription)"
-            }
-            viewModel.showingImportAlert = true
+            performCategoriesImport(from: url)
         }
+    }
+    #endif
+
+    private func performCategoriesImport(from url: URL) {
+        do {
+            let content = try String(contentsOf: url, encoding: .utf8)
+            let lines = content.components(separatedBy: .newlines)
+            if lines.count > 1 {
+                var imported: [(name: String, type: String, colorHex: String, sortOrder: Int)] = []
+                for line in lines.dropFirst() {
+                    let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.isEmpty { continue }
+                    let fields = trimmed.components(separatedBy: ",")
+                    if fields.count >= 3 {
+                        let name = fields[0].trimmingCharacters(in: .whitespaces)
+                        let type = fields[1].trimmingCharacters(in: .whitespaces)
+                        let sortOrderStr = fields[2].trimmingCharacters(in: .whitespaces)
+                        let colorHex = fields.count >= 4
+                            ? fields[3].trimmingCharacters(in: .whitespaces)
+                            : "#9CA3AF"
+                        let sortOrder = Int(sortOrderStr) ?? 0
+                        imported.append((name: name, type: type, colorHex: colorHex, sortOrder: sortOrder))
+                    }
+                }
+                store.importCategories(imported)
+                viewModel.importMessage = "Successfully imported \(imported.count) categories."
+            } else {
+                viewModel.importMessage = "CSV file is empty."
+            }
+        } catch {
+            viewModel.importMessage = "Import error: \(error.localizedDescription)"
+        }
+        viewModel.showingImportAlert = true
     }
 
     // MARK: - Maintenance: Clear data and restore defaults
     private func clearDataAndRestoreDefaults() {
-        // Backup before destructive operation
-        BackupManager.shared.backupDatabase()
-        do {
-            // Delete all existing data
-            let txs = try modelContext.fetch(FetchDescriptor<Transaction>())
-            for t in txs { modelContext.delete(t) }
-
-            let cats = try modelContext.fetch(FetchDescriptor<CategoryItem>())
-            for c in cats { modelContext.delete(c) }
-
-            let accts = try modelContext.fetch(FetchDescriptor<AccountItem>())
-            for a in accts { modelContext.delete(a) }
-
-            try modelContext.save()
-
-            // Reseed defaults
-            CategoryInfo.seedDefaultsIfNeeded(context: modelContext)
-        } catch {
-            print("⚠️ Failed to clear and restore defaults: \(error)")
-        }
+        store.clearAllAndRestoreDefaults()
     }
 }
 
@@ -306,6 +320,5 @@ struct ContentView: View {
         showAddAccount: .constant(false),
         showEditAccounts: .constant(false)
     )
-    .modelContainer(for: [Transaction.self, CategoryItem.self, AccountItem.self], inMemory: true)
+    .environment(LedgerStore())
 }
-

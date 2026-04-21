@@ -10,6 +10,8 @@
 		70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70230FFE2F3E32B80085EC2E /* AppCommands.swift */; };
 		70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BD0D902F84504F00113024 /* PDFExporter.swift */; };
 		70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */; };
+		70D1EB032F971EAD0044DC0B /* LedgerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D1EB022F971EAD0044DC0B /* LedgerStore.swift */; };
+		70D1EB052F971ECC0044DC0B /* SwiftDataMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D1EB042F971ECC0044DC0B /* SwiftDataMigrator.swift */; };
 		70E1F1282F838B6700559B3C /* SwiftDataSafety.md in Resources */ = {isa = PBXBuildFile; fileRef = 70E1F1272F838B6700559B3C /* SwiftDataSafety.md */; };
 		B0000001 /* PersonalFinanceLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000001 /* PersonalFinanceLedgerApp.swift */; };
 		B0000002 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000002 /* Transaction.swift */; };
@@ -30,13 +32,15 @@
 		B0000011 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000011 /* AddAccountSheet.swift */; };
 		B0000012 /* EditAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000012 /* EditAccountSheet.swift */; };
 		B0000013 /* BackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000013 /* BackupManager.swift */; };
-		B0000014 /* SchemaVersioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000014 /* SchemaVersioning.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		70230FFE2F3E32B80085EC2E /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		70BD0D902F84504F00113024 /* PDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExporter.swift; sourceTree = "<group>"; };
 		70C9A47C2F7CF66D0096CF89 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
+		70D1EB022F971EAD0044DC0B /* LedgerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerStore.swift; sourceTree = "<group>"; };
+		70D1EB042F971ECC0044DC0B /* SwiftDataMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataMigrator.swift; sourceTree = "<group>"; };
+		70D1EB062F97254F0044DC0B /* PersonalFinanceLedgerApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalFinanceLedgerApp.entitlements; sourceTree = "<group>"; };
 		70E1F1272F838B6700559B3C /* SwiftDataSafety.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SwiftDataSafety.md; sourceTree = "<group>"; };
 		A0000001 /* PersonalFinanceLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalFinanceLedgerApp.swift; sourceTree = "<group>"; };
 		A0000002 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
@@ -50,7 +54,7 @@
 		A000000A /* InputBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarView.swift; sourceTree = "<group>"; };
 		A000000B /* EditTransactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransactionSheet.swift; sourceTree = "<group>"; };
 		A000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A000000D /* PersonalFinanceLedgerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PersonalFinanceLedgerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A000000D /* Finance Ledger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Finance Ledger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A000000D2 /* CategoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItem.swift; sourceTree = "<group>"; };
 		A000000E /* AccountItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItem.swift; sourceTree = "<group>"; };
 		A000000F /* AddCategorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategorySheet.swift; sourceTree = "<group>"; };
@@ -58,7 +62,6 @@
 		A0000011 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
 		A0000012 /* EditAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccountSheet.swift; sourceTree = "<group>"; };
 		A0000013 /* BackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManager.swift; sourceTree = "<group>"; };
-		A0000014 /* SchemaVersioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersioning.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +86,7 @@
 		C0000002 /* PersonalFinanceLedgerApp */ = {
 			isa = PBXGroup;
 			children = (
+				70D1EB062F97254F0044DC0B /* PersonalFinanceLedgerApp.entitlements */,
 				A0000001 /* PersonalFinanceLedgerApp.swift */,
 				C0000003 /* Models */,
 				C0000004 /* ViewModels */,
@@ -101,7 +105,8 @@
 				A000000D2 /* CategoryItem.swift */,
 				A000000E /* AccountItem.swift */,
 				A0000013 /* BackupManager.swift */,
-				A0000014 /* SchemaVersioning.swift */,
+				70D1EB022F971EAD0044DC0B /* LedgerStore.swift */,
+				70D1EB042F971ECC0044DC0B /* SwiftDataMigrator.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -138,7 +143,7 @@
 		C0000006 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A000000D /* PersonalFinanceLedgerApp.app */,
+				A000000D /* Finance Ledger.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,9 +151,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E0000001 /* PersonalFinanceLedgerApp */ = {
+		E0000001 /* Finance Ledger */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = G0000002 /* Build configuration list for PBXNativeTarget "PersonalFinanceLedgerApp" */;
+			buildConfigurationList = G0000002 /* Build configuration list for PBXNativeTarget "Finance Ledger" */;
 			buildPhases = (
 				D0000001 /* Sources */,
 				D0000002 /* Resources */,
@@ -158,9 +163,9 @@
 			);
 			dependencies = (
 			);
-			name = PersonalFinanceLedgerApp;
+			name = "Finance Ledger";
 			productName = PersonalFinanceLedgerApp;
-			productReference = A000000D /* PersonalFinanceLedgerApp.app */;
+			productReference = A000000D /* Finance Ledger.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -170,7 +175,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					E0000001 = {
@@ -178,7 +183,7 @@
 					};
 				};
 			};
-			buildConfigurationList = G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */;
+			buildConfigurationList = G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedger" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -191,7 +196,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E0000001 /* PersonalFinanceLedgerApp */,
+				E0000001 /* Finance Ledger */,
 			);
 		};
 /* End PBXProject section */
@@ -219,6 +224,7 @@
 				B0000004 /* CategoryInfo.swift in Sources */,
 				B0000005 /* LedgerViewModel.swift in Sources */,
 				B0000006 /* ContentView.swift in Sources */,
+				70D1EB052F971ECC0044DC0B /* SwiftDataMigrator.swift in Sources */,
 				B0000007 /* TransactionListView.swift in Sources */,
 				B0000008 /* CategoryBadge.swift in Sources */,
 				70C9A47D2F7CF66E0096CF89 /* SummaryView.swift in Sources */,
@@ -230,10 +236,10 @@
 				70230FFF2F3E32B80085EC2E /* AppCommands.swift in Sources */,
 				B000000F /* AddCategorySheet.swift in Sources */,
 				B0000010 /* EditCategorySheet.swift in Sources */,
+				70D1EB032F971EAD0044DC0B /* LedgerStore.swift in Sources */,
 				B0000011 /* AddAccountSheet.swift in Sources */,
 				B0000012 /* EditAccountSheet.swift in Sources */,
 				B0000013 /* BackupManager.swift in Sources */,
-				B0000014 /* SchemaVersioning.swift in Sources */,
 				70BD0D912F84504F00113024 /* PDFExporter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,16 +304,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalFinanceLedgerApp/PersonalFinanceLedgerApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 945CJK77LM;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Finance Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -329,16 +338,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalFinanceLedgerApp/PersonalFinanceLedgerApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 945CJK77LM;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Finance Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -358,7 +370,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedgerApp" */ = {
+		G0000001 /* Build configuration list for PBXProject "PersonalFinanceLedger" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				H0000001 /* Debug */,
@@ -367,7 +379,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		G0000002 /* Build configuration list for PBXNativeTarget "PersonalFinanceLedgerApp" */ = {
+		G0000002 /* Build configuration list for PBXNativeTarget "Finance Ledger" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				H0000003 /* Debug */,

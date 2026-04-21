@@ -1,6 +1,13 @@
+#if canImport(AppKit)
 import AppKit
+private typealias PlatformFont = NSFont
+private typealias PlatformColor = NSColor
+#elseif canImport(UIKit)
+import UIKit
+private typealias PlatformFont = UIFont
+private typealias PlatformColor = UIColor
+#endif
 import SwiftUI
-import SwiftData
 import UniformTypeIdentifiers
 
 // MARK: - Bi‑weekly Period
@@ -35,11 +42,11 @@ struct PDFExporter {
     static let pageH: CGFloat = 792
     static let margin: CGFloat = 40
     static let contentW: CGFloat = pageW - 2 * margin
-    static let titleFont = NSFont.boldSystemFont(ofSize: 14)
-    static let subtitleFont = NSFont.systemFont(ofSize: 11)
-    static let headerFont = NSFont.boldSystemFont(ofSize: 9)
-    static let bodyFont = NSFont.systemFont(ofSize: 9)
-    static let smallFont = NSFont.systemFont(ofSize: 8)
+    static let titleFont = PlatformFont.boldSystemFont(ofSize: 14)
+    static let subtitleFont = PlatformFont.systemFont(ofSize: 11)
+    static let headerFont = PlatformFont.boldSystemFont(ofSize: 9)
+    static let bodyFont = PlatformFont.systemFont(ofSize: 9)
+    static let smallFont = PlatformFont.systemFont(ofSize: 8)
 
     // Column widths for transaction table
     static let colDate: CGFloat = 70
@@ -53,20 +60,20 @@ struct PDFExporter {
 
     // MARK: - Public entry point
 
+    #if os(macOS)
     static func exportPDF(
         transactions: [Transaction],
         allTransactions: [Transaction],
         categoryItems: [CategoryItem],
         accountItems: [AccountItem],
         viewModel: LedgerViewModel,
-        refundMatchedIDs: Set<PersistentIdentifier>
+        refundMatchedIDs: Set<UUID>
     ) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.pdf]
         panel.nameFieldStringValue = defaultFileName
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
-        // Use only expenses (excluding refund-matched), but show all txns in the table
         let sortedTxns = transactions.sorted { $0.date < $1.date }
 
         guard let pdfData = generatePDF(
@@ -80,6 +87,27 @@ struct PDFExporter {
 
         try? pdfData.write(to: url)
     }
+    #endif
+
+    /// Generates PDF data (cross-platform). On macOS, called by `exportPDF`. On iOS, use with `.fileExporter`.
+    static func generatePDFData(
+        transactions: [Transaction],
+        allTransactions: [Transaction],
+        categoryItems: [CategoryItem],
+        accountItems: [AccountItem],
+        viewModel: LedgerViewModel,
+        refundMatchedIDs: Set<UUID>
+    ) -> Data? {
+        let sortedTxns = transactions.sorted { $0.date < $1.date }
+        return generatePDF(
+            transactions: sortedTxns,
+            allTransactions: allTransactions,
+            categoryItems: categoryItems,
+            accountItems: accountItems,
+            viewModel: viewModel,
+            refundMatchedIDs: refundMatchedIDs
+        )
+    }
 
     // MARK: - PDF Generation
 
@@ -89,7 +117,7 @@ struct PDFExporter {
         categoryItems: [CategoryItem],
         accountItems: [AccountItem],
         viewModel: LedgerViewModel,
-        refundMatchedIDs: Set<PersistentIdentifier>
+        refundMatchedIDs: Set<UUID>
     ) -> Data? {
         let pdfData = NSMutableData()
         guard let consumer = CGDataConsumer(data: pdfData as CFMutableData) else { return nil }
@@ -124,16 +152,16 @@ struct PDFExporter {
             y += chartH + 8
 
             // Period totals above table
-            let periodExpense = periodTxns.filter { $0.amount < 0 && !refundMatchedIDs.contains($0.persistentModelID) }
+            let periodExpense = periodTxns.filter { $0.amount < 0 && !refundMatchedIDs.contains($0.id) }
                 .reduce(0.0) { $0 + abs($1.amount) }
-            let periodIncome = periodTxns.filter { $0.amount > 0 && !refundMatchedIDs.contains($0.persistentModelID) }
+            let periodIncome = periodTxns.filter { $0.amount > 0 && !refundMatchedIDs.contains($0.id) }
                 .reduce(0.0) { $0 + $1.amount }
             drawText(ctx: ctx, text: String(format: "Total Expense: $%.2f", periodExpense),
                      rect: CGRect(x: margin, y: y, width: contentW / 2, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 9), color: .systemRed, alignment: .left)
+                     font: PlatformFont.boldSystemFont(ofSize: 9), color: .systemRed, alignment: .left)
             drawText(ctx: ctx, text: String(format: "Total Income: $%.2f", periodIncome),
                      rect: CGRect(x: margin + contentW / 2, y: y, width: contentW / 2, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 9), color: .systemGreen, alignment: .right)
+                     font: PlatformFont.boldSystemFont(ofSize: 9), color: .systemGreen, alignment: .right)
             y += 18
 
             // Table area
@@ -177,7 +205,7 @@ struct PDFExporter {
         // Account Status
         y += 10
         drawText(ctx: ctx, text: "Account Status", rect: CGRect(x: margin, y: y, width: contentW, height: 18),
-                 font: NSFont.boldSystemFont(ofSize: 12), color: .black)
+                 font: PlatformFont.boldSystemFont(ofSize: 12), color: .black)
         y += 22
 
         let col1: CGFloat = margin            // Account name
@@ -192,7 +220,7 @@ struct PDFExporter {
         for account in accountItems {
             let acctTxns = allTransactions.filter { $0.account == account.name }
             let balance = acctTxns.reduce(0.0) { $0 + $1.amount }
-            let balColor: NSColor = balance >= 0 ? .systemGreen : .systemRed
+            let balColor: PlatformColor = balance >= 0 ? .systemGreen : .systemRed
 
             // Check for page overflow
             let estimatedHeight = CGFloat(expenseCategories.count + incomeCategories.count + 4) * 14 + 10
@@ -207,23 +235,23 @@ struct PDFExporter {
             // Account name (bold)
             drawText(ctx: ctx, text: account.name,
                      rect: CGRect(x: col1, y: y, width: 110, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 9), color: .labelColor)
+                     font: PlatformFont.boldSystemFont(ofSize: 9), color: .label)
 
             // --- Expense section ---
             drawText(ctx: ctx, text: "Expense",
                      rect: CGRect(x: col2, y: y, width: 90, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 8), color: .systemRed)
+                     font: PlatformFont.boldSystemFont(ofSize: 8), color: .systemRed)
             y += 14
 
             for cat in expenseCategories {
-                let catTxns = acctTxns.filter { $0.category == cat.name && $0.amount < 0 && !refundMatchedIDs.contains($0.persistentModelID) }
+                let catTxns = acctTxns.filter { $0.category == cat.name && $0.amount < 0 && !refundMatchedIDs.contains($0.id) }
                 let catTotal = catTxns.reduce(0.0) { $0 + abs($1.amount) }
                 drawText(ctx: ctx, text: cat.name,
                          rect: CGRect(x: col3, y: y, width: 140, height: 13),
-                         font: bodyFont, color: .labelColor)
+                         font: bodyFont, color: .label)
                 drawText(ctx: ctx, text: String(format: "$%.2f", catTotal),
                          rect: CGRect(x: col4, y: y, width: col4W, height: 13),
-                         font: bodyFont, color: catTotal > 0 ? .labelColor : .tertiaryLabelColor, alignment: .right)
+                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabelColor, alignment: .right)
                 y += 13
             }
 
@@ -232,18 +260,18 @@ struct PDFExporter {
             // --- Income section ---
             drawText(ctx: ctx, text: "Income",
                      rect: CGRect(x: col2, y: y, width: 90, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 8), color: .systemGreen)
+                     font: PlatformFont.boldSystemFont(ofSize: 8), color: .systemGreen)
             y += 14
 
             for cat in incomeCategories {
-                let catTxns = acctTxns.filter { $0.category == cat.name && $0.amount > 0 && !refundMatchedIDs.contains($0.persistentModelID) }
+                let catTxns = acctTxns.filter { $0.category == cat.name && $0.amount > 0 && !refundMatchedIDs.contains($0.id) }
                 let catTotal = catTxns.reduce(0.0) { $0 + $1.amount }
                 drawText(ctx: ctx, text: cat.name,
                          rect: CGRect(x: col3, y: y, width: 140, height: 13),
-                         font: bodyFont, color: .labelColor)
+                         font: bodyFont, color: .label)
                 drawText(ctx: ctx, text: String(format: "$%.2f", catTotal),
                          rect: CGRect(x: col4, y: y, width: col4W, height: 13),
-                         font: bodyFont, color: catTotal > 0 ? .labelColor : .tertiaryLabelColor, alignment: .right)
+                         font: bodyFont, color: catTotal > 0 ? .label : .tertiaryLabelColor, alignment: .right)
                 y += 13
             }
 
@@ -252,15 +280,15 @@ struct PDFExporter {
             // --- Balance ---
             drawText(ctx: ctx, text: "Balance",
                      rect: CGRect(x: col2, y: y, width: 90, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 9), color: .labelColor)
+                     font: PlatformFont.boldSystemFont(ofSize: 9), color: .label)
             drawText(ctx: ctx, text: String(format: "$%.2f", abs(balance)),
                      rect: CGRect(x: col4, y: y, width: col4W, height: 14),
-                     font: NSFont.boldSystemFont(ofSize: 9), color: balColor, alignment: .right)
+                     font: PlatformFont.boldSystemFont(ofSize: 9), color: balColor, alignment: .right)
             y += 14
 
             // Separator between accounts
             y += 6
-            ctx.setStrokeColor(NSColor.separatorColor.cgColor)
+            ctx.setStrokeColor(PlatformColor.separator.cgColor)
             ctx.setLineWidth(0.5)
             ctx.move(to: CGPoint(x: margin, y: y))
             ctx.addLine(to: CGPoint(x: pageW - margin, y: y))
@@ -343,7 +371,7 @@ struct PDFExporter {
         y += 20
 
         // Divider line
-        ctx.setStrokeColor(NSColor.separatorColor.cgColor)
+        ctx.setStrokeColor(PlatformColor.separator.cgColor)
         ctx.setLineWidth(0.5)
         ctx.move(to: CGPoint(x: margin, y: y))
         ctx.addLine(to: CGPoint(x: pageW - margin, y: y))
@@ -367,7 +395,7 @@ struct PDFExporter {
         let headers = [("Date", colDate), ("Category", colCategory), ("Description", colDescription), ("Account", colAccount), ("Amount", colAmount)]
 
         // Background
-        fillRect(ctx: ctx, rect: CGRect(x: margin, y: y, width: contentW, height: headerH), color: NSColor.systemGray.withAlphaComponent(0.15))
+        fillRect(ctx: ctx, rect: CGRect(x: margin, y: y, width: contentW, height: headerH), color: PlatformColor.systemGray.withAlphaComponent(0.15))
 
         for (title, width) in headers {
             let align: NSTextAlignment = title == "Amount" ? .right : .left
@@ -379,7 +407,7 @@ struct PDFExporter {
 
         // Bottom line
         let lineY = y + headerH
-        ctx.setStrokeColor(NSColor.separatorColor.cgColor)
+        ctx.setStrokeColor(PlatformColor.separator.cgColor)
         ctx.setLineWidth(0.5)
         ctx.move(to: CGPoint(x: margin, y: lineY))
         ctx.addLine(to: CGPoint(x: pageW - margin, y: lineY))
@@ -393,13 +421,13 @@ struct PDFExporter {
         dateFormatter.dateFormat = "M/d/yy"
 
         var x = margin
-        let amountColor: NSColor = transaction.amount >= 0 ? .systemGreen : .systemRed
+        let amountColor: PlatformColor = transaction.amount >= 0 ? .systemGreen : .systemRed
 
-        let values: [(String, CGFloat, NSColor, NSTextAlignment)] = [
-            (dateFormatter.string(from: transaction.date), colDate, .labelColor, .left),
-            (transaction.category, colCategory, .labelColor, .left),
-            (transaction.descriptionText, colDescription, .labelColor, .left),
-            (transaction.account, colAccount, .labelColor, .left),
+        let values: [(String, CGFloat, PlatformColor, NSTextAlignment)] = [
+            (dateFormatter.string(from: transaction.date), colDate, .label, .left),
+            (transaction.category, colCategory, .label, .left),
+            (transaction.descriptionText, colDescription, .label, .left),
+            (transaction.account, colAccount, .label, .left),
             (String(format: "$%.2f", abs(transaction.amount)), colAmount, amountColor, .right),
         ]
 
@@ -419,14 +447,14 @@ struct PDFExporter {
         transactions: [Transaction],
         categoryItems: [CategoryItem],
         viewModel: LedgerViewModel,
-        refundMatchedIDs: Set<PersistentIdentifier>
+        refundMatchedIDs: Set<UUID>
     ) {
         // Aggregate amounts by category
         var amountDict: [String: Double] = [:]
         for t in transactions {
-            if t.amount < 0 && !refundMatchedIDs.contains(t.persistentModelID) {
+            if t.amount < 0 && !refundMatchedIDs.contains(t.id) {
                 amountDict[t.category, default: 0] += abs(t.amount)
-            } else if t.amount > 0 && !refundMatchedIDs.contains(t.persistentModelID) {
+            } else if t.amount > 0 && !refundMatchedIDs.contains(t.id) {
                 amountDict[t.category, default: 0] += t.amount
             }
         }
@@ -434,7 +462,7 @@ struct PDFExporter {
         struct BarData {
             let label: String
             let amount: Double
-            let color: NSColor
+            let color: PlatformColor
         }
 
         // Build bars in static sort order — expense first, then income
@@ -446,10 +474,10 @@ struct PDFExporter {
             .sorted { $0.sortOrder < $1.sortOrder }
 
         var expenseBars: [BarData] = expenseCategories.map { cat in
-            BarData(label: cat.name, amount: amountDict[cat.name] ?? 0, color: NSColor(cat.color))
+            BarData(label: cat.name, amount: amountDict[cat.name] ?? 0, color: PlatformColor(cat.color))
         }
         var incomeBars: [BarData] = incomeCategories.map { cat in
-            BarData(label: cat.name, amount: amountDict[cat.name] ?? 0, color: NSColor(cat.color))
+            BarData(label: cat.name, amount: amountDict[cat.name] ?? 0, color: PlatformColor(cat.color))
         }
 
         let totalSlots = expenseBars.count + incomeBars.count
@@ -484,7 +512,7 @@ struct PDFExporter {
 
         // Draw a thin separator line in the gap
         let sepX = currentX - gapBetweenGroups / 2
-        ctx.setStrokeColor(NSColor.separatorColor.cgColor)
+        ctx.setStrokeColor(PlatformColor.separator.cgColor)
         ctx.setLineWidth(0.5)
         ctx.move(to: CGPoint(x: sepX, y: chartTop - 4))
         ctx.addLine(to: CGPoint(x: sepX, y: chartBottom + 4))
@@ -495,13 +523,13 @@ struct PDFExporter {
         let expenseLabelW = CGFloat(expenseBars.count) * (barW + spacing) - spacing
         drawText(ctx: ctx, text: "Expense",
                  rect: CGRect(x: expenseLabelX, y: rect.minY, width: expenseLabelW, height: 12),
-                 font: NSFont.boldSystemFont(ofSize: 7), color: .systemRed, alignment: .center)
+                 font: PlatformFont.boldSystemFont(ofSize: 7), color: .systemRed, alignment: .center)
 
         let incomeLabelX = currentX
         let incomeLabelW = CGFloat(incomeBars.count) * (barW + spacing) - spacing
         drawText(ctx: ctx, text: "Income",
                  rect: CGRect(x: incomeLabelX, y: rect.minY, width: incomeLabelW, height: 12),
-                 font: NSFont.boldSystemFont(ofSize: 7), color: .systemGreen, alignment: .center)
+                 font: PlatformFont.boldSystemFont(ofSize: 7), color: .systemGreen, alignment: .center)
 
         // Draw income bars
         for bar in incomeBars {
@@ -512,7 +540,7 @@ struct PDFExporter {
 
     private static func drawSingleBar(
         ctx: CGContext,
-        label: String, amount: Double, color: NSColor,
+        label: String, amount: Double, color: PlatformColor,
         x: CGFloat, barW: CGFloat,
         chartTop: CGFloat, chartBottom: CGFloat, chartH: CGFloat,
         maxAmt: Double, labelH: CGFloat
@@ -526,20 +554,24 @@ struct PDFExporter {
 
         // Label below
         let labelRect = CGRect(x: x - 2, y: chartBottom + 2, width: barW + 4, height: labelH - 4)
-        drawText(ctx: ctx, text: label, rect: labelRect, font: NSFont.systemFont(ofSize: 6), color: .darkGray, alignment: .center)
+        drawText(ctx: ctx, text: label, rect: labelRect, font: PlatformFont.systemFont(ofSize: 6), color: .darkGray, alignment: .center)
 
         // Amount on top (only if > 0)
         if amount > 0 {
             let amtRect = CGRect(x: x - 10, y: barY - 12, width: barW + 20, height: 12)
-            drawText(ctx: ctx, text: String(format: "$%.0f", amount), rect: amtRect, font: NSFont.systemFont(ofSize: 6), color: .darkGray, alignment: .center)
+            drawText(ctx: ctx, text: String(format: "$%.0f", amount), rect: amtRect, font: PlatformFont.systemFont(ofSize: 6), color: .darkGray, alignment: .center)
         }
     }
 
     // MARK: - Drawing Primitives
 
-    static func drawText(ctx: CGContext, text: String, rect: CGRect, font: NSFont, color: NSColor, alignment: NSTextAlignment = .left) {
+    static func drawText(ctx: CGContext, text: String, rect: CGRect, font: PlatformFont, color: PlatformColor, alignment: NSTextAlignment = .left) {
+        #if canImport(AppKit)
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: true)
+        #elseif canImport(UIKit)
+        UIGraphicsPushContext(ctx)
+        #endif
 
         let style = NSMutableParagraphStyle()
         style.alignment = alignment
@@ -552,10 +584,15 @@ struct PDFExporter {
         ]
 
         (text as NSString).draw(in: rect, withAttributes: attrs)
+
+        #if canImport(AppKit)
         NSGraphicsContext.restoreGraphicsState()
+        #elseif canImport(UIKit)
+        UIGraphicsPopContext()
+        #endif
     }
 
-    static func fillRect(ctx: CGContext, rect: CGRect, color: NSColor) {
+    static func fillRect(ctx: CGContext, rect: CGRect, color: PlatformColor) {
         ctx.setFillColor(color.cgColor)
         ctx.fill(rect)
     }

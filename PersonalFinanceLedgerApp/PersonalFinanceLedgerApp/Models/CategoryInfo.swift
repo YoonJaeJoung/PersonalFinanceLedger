@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct CategoryInfo {
     // Default seed data (used on first launch only)
@@ -63,59 +62,4 @@ struct CategoryInfo {
     static func color(for category: String) -> Color {
         categoryColors[category] ?? .gray
     }
-
-    // MARK: - Seeding & Migration
-
-    /// Seed default categories and accounts into SwiftData if none exist.
-    /// Also migrates "shopping" → "Shopping" in existing transactions.
-    static func seedDefaultsIfNeeded(context: ModelContext) {
-        // Seed categories
-        // All saves are wrapped in do/catch to avoid crashing if the store is temporarily unavailable
-        do {
-            let catDescriptor = FetchDescriptor<CategoryItem>()
-            let existingCats = try context.fetchCount(catDescriptor)
-            if existingCats == 0 {
-                for (i, cat) in defaultExpenseCategories.enumerated() {
-                    context.insert(CategoryItem(name: cat.name, type: "expense", colorHex: cat.hex, sortOrder: i))
-                }
-                for (i, cat) in defaultIncomeCategories.enumerated() {
-                    context.insert(CategoryItem(name: cat.name, type: "income", colorHex: cat.hex, sortOrder: i))
-                }
-                try context.save()
-            }
-        } catch {
-            print("⚠️ Failed to seed categories: \(error)")
-        }
-
-        // Seed accounts
-        do {
-            let acctDescriptor = FetchDescriptor<AccountItem>()
-            let existingAccts = try context.fetchCount(acctDescriptor)
-            if existingAccts == 0 {
-                for (i, acct) in defaultAccounts.enumerated() {
-                    context.insert(AccountItem(name: acct.name, csvFileName: acct.csv, sortOrder: i))
-                }
-                try context.save()
-            }
-        } catch {
-            print("⚠️ Failed to seed accounts: \(error)")
-        }
-
-        // Migrate "shopping" → "Shopping"
-        do {
-            let txDescriptor = FetchDescriptor<Transaction>()
-            let all = try context.fetch(txDescriptor)
-            var changed = false
-            for t in all {
-                if t.category.lowercased() == "shopping" && t.category != "Shopping" {
-                    t.category = "Shopping"
-                    changed = true
-                }
-            }
-            if changed { try context.save() }
-        } catch {
-            print("⚠️ Failed to migrate shopping category: \(error)")
-        }
-    }
 }
-

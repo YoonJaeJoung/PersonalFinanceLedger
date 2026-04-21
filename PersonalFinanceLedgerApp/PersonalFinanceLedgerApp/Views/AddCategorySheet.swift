@@ -1,9 +1,8 @@
 import SwiftUI
-import SwiftData
 
 struct AddCategorySheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @Environment(LedgerStore.self) private var store
 
     @State private var name = ""
     @State private var type = "expense"
@@ -51,10 +50,7 @@ struct AddCategorySheet: View {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
-        // Determine sort order
-        let descriptor = FetchDescriptor<CategoryItem>()
-        let existing = (try? modelContext.fetch(descriptor)) ?? []
-        let maxOrder = existing.map(\.sortOrder).max() ?? -1
+        let maxOrder = store.categories.map(\.sortOrder).max() ?? -1
 
         let item = CategoryItem(
             name: trimmed,
@@ -62,11 +58,6 @@ struct AddCategorySheet: View {
             colorHex: selectedColor.toHex(),
             sortOrder: maxOrder + 1
         )
-        modelContext.insert(item)
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save new category: \(error)")
-        }
+        store.addCategory(item)
     }
 }

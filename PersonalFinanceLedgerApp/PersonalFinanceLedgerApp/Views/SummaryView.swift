@@ -1,6 +1,5 @@
 import SwiftUI
 import Charts
-import SwiftData
 
 // MARK: - Data Structs
 
@@ -73,19 +72,19 @@ struct SummaryView: View {
     @State private var showExcludedRefunds = false
 
     // Cached refund matching (computed once on appear, cleared on disappear)
-    @State private var cachedRefundMatchedIDs: Set<PersistentIdentifier> = []
+    @State private var cachedRefundMatchedIDs: Set<UUID> = []
 
     // MARK: Refund Matching (computed once, stored in cache)
 
-    private static func computeRefundMatches(from transactions: [Transaction]) -> Set<PersistentIdentifier> {
+    private static func computeRefundMatches(from transactions: [Transaction]) -> Set<UUID> {
         let refunds = transactions.filter { $0.amount > 0 && $0.category == "Refund" }
         let expenseTxns = transactions.filter { $0.amount < 0 }
 
-        var matched = Set<PersistentIdentifier>()
-        var usedRefunds = Set<PersistentIdentifier>()
+        var matched = Set<UUID>()
+        var usedRefunds = Set<UUID>()
 
         for refund in refunds {
-            guard !usedRefunds.contains(refund.persistentModelID) else { continue }
+            guard !usedRefunds.contains(refund.id) else { continue }
             let refundWords = Set(
                 refund.descriptionText.lowercased()
                     .components(separatedBy: .whitespaces)
@@ -93,7 +92,7 @@ struct SummaryView: View {
             )
 
             for expense in expenseTxns {
-                guard !matched.contains(expense.persistentModelID) else { continue }
+                guard !matched.contains(expense.id) else { continue }
                 if abs(abs(refund.amount) - abs(expense.amount)) < 0.001 {
                     let expenseWords = Set(
                         expense.descriptionText.lowercased()
@@ -101,8 +100,8 @@ struct SummaryView: View {
                             .filter { !$0.isEmpty }
                     )
                     if !refundWords.isDisjoint(with: expenseWords) {
-                        matched.insert(expense.persistentModelID)
-                        usedRefunds.insert(refund.persistentModelID)
+                        matched.insert(expense.id)
+                        usedRefunds.insert(refund.id)
                         break
                     }
                 }
@@ -112,13 +111,13 @@ struct SummaryView: View {
     }
 
     private var excludedRefundExpenses: [Transaction] {
-        transactions.filter { cachedRefundMatchedIDs.contains($0.persistentModelID) }
+        transactions.filter { cachedRefundMatchedIDs.contains($0.id) }
             .sorted { $0.date < $1.date }
     }
 
     // Filtered expenses (negative amounts, excluding refund-matched)
     private var expenses: [Transaction] {
-        transactions.filter { $0.amount < 0 && !cachedRefundMatchedIDs.contains($0.persistentModelID) }
+        transactions.filter { $0.amount < 0 && !cachedRefundMatchedIDs.contains($0.id) }
     }
 
     private var totalExpenses: Double {
@@ -236,7 +235,7 @@ struct SummaryView: View {
     private var excludedRefundsSection: some View {
         SummaryCard(title: "Excluded Refund-Matched Expenses", systemImage: "arrow.uturn.backward.circle") {
             DisclosureGroup(isExpanded: $showExcludedRefunds) {
-                ForEach(excludedRefundExpenses, id: \.persistentModelID) { t in
+                ForEach(excludedRefundExpenses) { t in
                     HStack(spacing: 8) {
                         Text(t.date.formatted(date: .abbreviated, time: .omitted))
                             .font(.caption)

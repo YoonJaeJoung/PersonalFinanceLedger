@@ -65,6 +65,7 @@ extension EnvironmentValues {
     }
 }
 
+#if os(macOS)
 // MARK: - App menu commands
 struct AppMenuCommands: Commands {
     @FocusedValue(\.importExportActions) private var importExportActions
@@ -135,3 +136,4 @@ struct AppMenuCommands: Commands {
         }
     }
 }
+#endif

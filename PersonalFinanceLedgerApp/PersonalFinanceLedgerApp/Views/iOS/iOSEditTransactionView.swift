@@ -1,8 +1,9 @@
+#if os(iOS)
 import SwiftUI
 
-struct EditTransactionSheet: View {
-    @Environment(\.dismiss) private var dismiss
+struct iOSEditTransactionView: View {
     @Environment(LedgerStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
     let transaction: Transaction
     var categoryItems: [CategoryItem]
     var viewModel: LedgerViewModel
@@ -43,14 +44,8 @@ struct EditTransactionSheet: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            Text("Edit Transaction")
-                .font(.headline)
-                .padding(.top, 20)
-                .padding(.bottom, 12)
-
-            Form {
+        Form {
+            Section {
                 DatePicker("Date", selection: $date, displayedComponents: .date)
 
                 TextField("Description", text: $descriptionText)
@@ -65,56 +60,35 @@ struct EditTransactionSheet: View {
                     }
                 }
 
-                // Category with autocomplete
+                // Category with suggestions
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Category")
-                        Spacer()
-                        TextField("Category", text: $category)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 180)
-                            .focused($isCategoryFocused)
-                            .onKeyPress(.tab) {
-                                if let first = categorySuggestions.first {
-                                    category = first
-                                    return .handled
-                                }
-                                return .ignored
-                            }
-                    }
+                    TextField("Category", text: $category)
+                        .focused($isCategoryFocused)
 
                     if !categorySuggestions.isEmpty {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(categorySuggestions, id: \.self) { cat in
-                                Button {
-                                    category = cat
-                                    isCategoryFocused = false
-                                } label: {
-                                    HStack(spacing: 6) {
-                                        Circle()
-                                            .fill(color(for: cat))
-                                            .frame(width: 8, height: 8)
-                                        Text(cat)
-                                            .font(.callout)
-                                            .foregroundStyle(.primary)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(categorySuggestions, id: \.self) { cat in
+                                    Button {
+                                        category = cat
+                                        isCategoryFocused = false
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Circle()
+                                                .fill(color(for: cat))
+                                                .frame(width: 8, height: 8)
+                                            Text(cat)
+                                                .font(.callout)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(color(for: cat).opacity(0.1))
+                                        .clipShape(Capsule())
                                     }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                if cat != categorySuggestions.last {
-                                    Divider().padding(.horizontal, 8)
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
-                        .background(.regularMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(.quaternary)
-                        )
                     }
                 }
 
@@ -125,26 +99,19 @@ struct EditTransactionSheet: View {
                 }
 
                 TextField("Amount", text: $amount)
+                    .keyboardType(.decimalPad)
             }
-            .formStyle(.grouped)
-            .frame(width: 380, height: 360)
-
-            // Footer buttons
-            HStack {
-                Button("Cancel") { dismiss() }
-                    .keyboardShortcut(.escape, modifiers: [])
-                Spacer()
+        }
+        .navigationTitle("Edit Transaction")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
                     save()
                     dismiss()
                 }
-                .keyboardShortcut(.return, modifiers: [])
-                .buttonStyle(.borderedProminent)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 16)
         }
-        .frame(width: 420)
     }
 
     private func save() {
@@ -159,3 +126,5 @@ struct EditTransactionSheet: View {
         store.updateTransaction(updated)
     }
 }
+
+#endif

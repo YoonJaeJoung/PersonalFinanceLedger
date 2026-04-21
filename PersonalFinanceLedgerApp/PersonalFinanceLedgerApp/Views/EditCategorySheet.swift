@@ -1,11 +1,8 @@
 import SwiftUI
-import SwiftData
 
 struct EditCategorySheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \CategoryItem.sortOrder) private var categories: [CategoryItem]
-    @Query(sort: \Transaction.date) private var allTransactions: [Transaction]
+    @Environment(LedgerStore.self) private var store
 
     @State private var editingItem: CategoryItem?
     @State private var editName = ""
@@ -13,6 +10,14 @@ struct EditCategorySheet: View {
     @State private var showDeleteError = false
     @State private var deleteErrorMessage = ""
     @FocusState private var isNameFocused: Bool
+
+    private var categories: [CategoryItem] {
+        store.sortedCategories
+    }
+
+    private var allTransactions: [Transaction] {
+        store.sortedTransactions
+    }
 
     private var expenseCategories: [CategoryItem] {
         categories.filter { $0.type == "expense" }
@@ -69,7 +74,7 @@ struct EditCategorySheet: View {
 
     @ViewBuilder
     private func categoryRow(_ cat: CategoryItem) -> some View {
-        if editingItem?.persistentModelID == cat.persistentModelID {
+        if editingItem?.id == cat.id {
             // Editing mode
             HStack(spacing: 8) {
                 ColorPicker("", selection: $editColor, supportsOpacity: false)
@@ -137,27 +142,13 @@ struct EditCategorySheet: View {
         let newName = trimmed
         let newHex = editColor.toHex()
 
-        let isExpenseCategory = cat.type == "expense"
-
-        // Update the category item
-        cat.name = newName
-        cat.colorHex = newHex
-
-        // If name changed, update all transactions
-        if oldName != newName {
-            for t in allTransactions where t.category == oldName {
-                let isTransactionExpense = t.amount < 0
-                if isExpenseCategory == isTransactionExpense {
-                    t.category = newName
-                }
-            }
-        }
-
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save category edit: \(error)")
-        }
+        store.renameCategory(
+            oldName: oldName,
+            newName: newName,
+            newColorHex: newHex,
+            type: cat.type,
+            categoryID: cat.id
+        )
         editingItem = nil
     }
 
@@ -167,38 +158,19 @@ struct EditCategorySheet: View {
             deleteErrorMessage = "Cannot delete \"\(cat.name)\" because it is used by \(usageCount) transaction(s). Rename or reassign them first."
             showDeleteError = true
         } else {
-            modelContext.delete(cat)
-            do {
-                try modelContext.save()
-            } catch {
-                print("⚠️ Failed to save after deleting category: \(error)")
-            }
+            store.deleteCategory(id: cat.id)
         }
     }
 
     private func moveExpenseCategory(from source: IndexSet, to destination: Int) {
         var items = expenseCategories
         items.move(fromOffsets: source, toOffset: destination)
-        for (index, item) in items.enumerated() {
-            item.sortOrder = index
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save expense category order: \(error)")
-        }
+        store.reorderCategories(type: "expense", orderedIDs: items.map(\.id))
     }
 
     private func moveIncomeCategory(from source: IndexSet, to destination: Int) {
         var items = incomeCategories
         items.move(fromOffsets: source, toOffset: destination)
-        for (index, item) in items.enumerated() {
-            item.sortOrder = index
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save income category order: \(error)")
-        }
+        store.reorderCategories(type: "income", orderedIDs: items.map(\.id))
     }
 }

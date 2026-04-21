@@ -1,16 +1,21 @@
 import SwiftUI
-import SwiftData
 
 struct EditAccountSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \AccountItem.sortOrder) private var accounts: [AccountItem]
-    @Query(sort: \Transaction.date) private var allTransactions: [Transaction]
+    @Environment(LedgerStore.self) private var store
 
     @State private var editingItem: AccountItem?
     @State private var editName = ""
     @State private var showDeleteError = false
     @State private var deleteErrorMessage = ""
+
+    private var accounts: [AccountItem] {
+        store.sortedAccounts
+    }
+
+    private var allTransactions: [Transaction] {
+        store.sortedTransactions
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -46,7 +51,7 @@ struct EditAccountSheet: View {
 
     @ViewBuilder
     private func accountRow(_ acct: AccountItem) -> some View {
-        if editingItem?.persistentModelID == acct.persistentModelID {
+        if editingItem?.id == acct.id {
             HStack(spacing: 8) {
                 TextField("Name", text: $editName)
                     .textFieldStyle(.roundedBorder)
@@ -96,20 +101,8 @@ struct EditAccountSheet: View {
         guard !trimmed.isEmpty else { return }
 
         let oldName = acct.name
-
-        acct.name = trimmed
-
-        // If name changed, update all transactions
         if oldName != trimmed {
-            for t in allTransactions where t.account == oldName {
-                t.account = trimmed
-            }
-        }
-
-        do {
-            try modelContext.save()
-        } catch {
-            print("⚠️ Failed to save account edit: \(error)")
+            store.renameAccount(oldName: oldName, newName: trimmed, accountID: acct.id)
         }
         editingItem = nil
     }
@@ -120,12 +113,7 @@ struct EditAccountSheet: View {
             deleteErrorMessage = "Cannot delete \"\(acct.name)\" because it has \(usageCount) transaction(s). Move or delete them first."
             showDeleteError = true
         } else {
-            modelContext.delete(acct)
-            do {
-                try modelContext.save()
-            } catch {
-                print("⚠️ Failed to save after deleting account: \(error)")
-            }
+            store.deleteAccount(id: acct.id)
         }
     }
 }

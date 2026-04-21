@@ -1,8 +1,7 @@
 import SwiftUI
-import SwiftData
 
 struct TransactionListView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(LedgerStore.self) private var store
     @Bindable var viewModel: LedgerViewModel
     let allTransactions: [Transaction]
     let categoryItems: [CategoryItem]
@@ -105,12 +104,7 @@ struct TransactionListView: View {
                                 }
                                 Divider()
                                 Button("Delete", role: .destructive) {
-                                    modelContext.delete(transaction)
-                                    do {
-                                        try modelContext.save()
-                                    } catch {
-                                        print("⚠️ Failed to save after deleting transaction: \(error)")
-                                    }
+                                    store.deleteTransaction(id: transaction.id)
                                 }
                             }
                     }
@@ -171,7 +165,7 @@ struct TransactionListView: View {
                 .frame(width: 120)
 
                 Button {
-                    viewModel.moveSelected(from: filtered, to: viewModel.moveTargetAccount, context: modelContext)
+                    viewModel.moveSelected(to: viewModel.moveTargetAccount, store: store)
                 } label: {
                     Label("Move (\(selectedCount))", systemImage: "folder")
                 }
@@ -180,7 +174,7 @@ struct TransactionListView: View {
 
                 // Delete
                 Button(role: .destructive) {
-                    viewModel.deleteSelected(from: filtered, context: modelContext)
+                    viewModel.deleteSelected(store: store)
                 } label: {
                     Label("Delete (\(selectedCount))", systemImage: "trash")
                 }
